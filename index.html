@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ТИШЕ — приложение для сна</title>
-<meta name="description" content="Истории, дыхание и звуки, которые уводят мысли и приводят сон. Первые 7 дней бесплатно.">
+<meta name="description" content="Дыхание, звуки и таймер сна, которые уводят мысли и приводят сон. Всё работает прямо в браузере.">
+<meta name="theme-color" content="#070610">
 <style>
   :root{
     --bg:#070610; --ink:#ECEAF6; --dim:#8B87A8; --lav:#A99BD6; --peri:#7C8AC9;
@@ -20,9 +21,9 @@
         font-weight:300;letter-spacing:-.015em}
   svg{display:block}
   a{color:inherit;text-decoration:none}
+  button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
   .wrap{max-width:1280px;margin:0 auto;padding:0 clamp(20px,5vw,64px);position:relative;z-index:1}
 
-  /* ночное небо */
   .sky{position:fixed;inset:0;z-index:0;pointer-events:none}
   .moon{position:absolute;top:-24vw;left:50%;transform:translateX(-50%);
         width:min(920px,120vw);aspect-ratio:1;border-radius:50%;
@@ -33,7 +34,6 @@
   .star{position:absolute;background:#fff;border-radius:50%;animation:tw 5s ease-in-out infinite}
   @keyframes tw{0%,100%{opacity:.25}50%{opacity:.8}}
 
-  /* навигация */
   header{position:sticky;top:0;z-index:40;display:flex;justify-content:center;padding:20px 16px}
   .nav{display:flex;align-items:center;gap:6px;background:rgba(18,16,30,.55);
        border:1px solid var(--hair);border-radius:999px;padding:7px 7px 7px 20px;
@@ -46,35 +46,35 @@
   .go{background:var(--ink);color:#0A0912;border-radius:999px;padding:10px 20px;font-size:14px;
       transition:transform .35s var(--e)}
   .go:hover{transform:translateY(-2px)}
-  .burger{display:none;width:40px;height:40px;border:0;background:none;cursor:pointer;
-          flex-direction:column;gap:5px;align-items:center;justify-content:center}
+  .burger{display:none;width:40px;height:40px;flex-direction:column;gap:5px;align-items:center;justify-content:center}
   .burger span{width:20px;height:2px;background:var(--ink);transition:.35s var(--e)}
 
-  /* герой */
   .hero{text-align:center;padding:clamp(48px,7vw,84px) 0 0}
   .eyebrow{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--hair);
            border-radius:999px;padding:8px 18px;font-size:11px;letter-spacing:.24em;
            text-transform:uppercase;color:var(--lav)}
-  .eyebrow i{width:6px;height:6px;border-radius:50%;background:var(--lav);
-             box-shadow:0 0 0 0 rgba(169,155,214,.5);animation:pulse 2.4s infinite}
+  .eyebrow i{width:6px;height:6px;border-radius:50%;background:var(--lav);animation:pulse 2.4s infinite}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(169,155,214,.4)}70%{box-shadow:0 0 0 9px transparent}100%{box-shadow:0 0 0 0 transparent}}
   h1{font-family:"Bahnschrift Light",Bahnschrift,sans-serif;font-weight:300;
      font-size:clamp(2.6rem,7vw,5.6rem);line-height:1.0;margin-top:26px;text-wrap:balance}
   h1 b{font-weight:600;color:var(--lav)}
-  .hero>p{margin:22px auto 0;max-width:44ch;color:var(--dim);font-size:clamp(1rem,1.4vw,1.2rem)}
+  .hero>p{margin:22px auto 0;max-width:46ch;color:var(--dim);font-size:clamp(1rem,1.4vw,1.2rem)}
+  .hint{margin-top:14px;font-size:13px;color:var(--peri);letter-spacing:.04em}
 
-  /* каскад карточек — кликабельные */
+  /* каскад карточек */
   .cascade{position:relative;height:clamp(300px,34vw,340px);margin-top:clamp(30px,5vw,50px)}
   .cc{position:absolute;top:0;left:50%;width:clamp(240px,22vw,300px);aspect-ratio:1;
       border-radius:30px;border:1px solid var(--hair);padding:24px;display:flex;
-      flex-direction:column;justify-content:space-between;text-align:left;cursor:pointer;
-      box-shadow:0 40px 80px rgba(0,0,0,.5);transition:transform .55s var(--e),box-shadow .4s}
-  .cc:hover{box-shadow:0 50px 100px rgba(0,0,0,.6)}
+      flex-direction:column;justify-content:space-between;text-align:left;
+      box-shadow:0 40px 80px rgba(0,0,0,.5);transition:transform .55s var(--e),box-shadow .4s,outline .3s;
+      outline:2px solid transparent;outline-offset:-2px}
+  .cc[aria-pressed="true"]{outline-color:var(--lav)}
   .cc .du{font-size:12px;color:rgba(255,255,255,.6)}
   .cc b{font-family:"Bahnschrift Light",Bahnschrift,sans-serif;font-weight:400;font-size:clamp(20px,1.7vw,26px);display:block}
   .cc span{color:rgba(255,255,255,.62);font-size:14px}
   .cc .bars{display:flex;align-items:flex-end;gap:3px;height:32px;opacity:.55}
   .cc .bars i{width:4px;background:#fff;border-radius:2px}
+  .cc[aria-pressed="true"] .bars i{animation:eq 1s ease-in-out infinite}
   .k1{--rot:-8deg;--x:-30vw;background:linear-gradient(155deg,#2C2450,#191436)}
   .k2{--rot:-2deg;--x:-10vw;background:linear-gradient(155deg,#243256,#141C36)}
   .k3{--rot:4deg;--x:10vw;background:linear-gradient(155deg,#3B2A52,#211734)}
@@ -83,11 +83,11 @@
   .cc:hover{transform:translateX(var(--x)) rotate(0deg) translateY(-10px)}
 
   /* плеер */
-  .player{position:relative;margin:clamp(-24px,-2vw,-30px) auto 0;max-width:860px;z-index:3;
+  .player{position:relative;margin:clamp(-24px,-2vw,-30px) auto 0;max-width:880px;z-index:3;
           background:var(--glass);border:1px solid var(--hair);border-radius:26px;padding:8px;
           backdrop-filter:blur(26px)}
   .core{background:linear-gradient(150deg,rgba(42,35,68,.92),rgba(16,14,30,.92));
-        border-radius:19px;padding:16px 22px;display:grid;
+        border-radius:19px 19px 0 0;padding:16px 22px;display:grid;
         grid-template-columns:56px 1fr auto auto;gap:clamp(12px,2vw,22px);align-items:center;
         box-shadow:inset 0 1px 1px rgba(255,255,255,.09)}
   .disc{width:56px;height:56px;border-radius:50%;flex:none;
@@ -99,15 +99,26 @@
   .ti b{font-family:"Bahnschrift Light",Bahnschrift,sans-serif;font-weight:400;font-size:clamp(16px,1.5vw,19px);display:block}
   .ti span{color:var(--dim);font-size:13px}
   .wv{display:flex;align-items:center;gap:3px;height:30px}
-  .wv i{width:3px;background:var(--lav);border-radius:2px;opacity:.7;transition:transform .3s}
+  .wv i{width:3px;background:var(--lav);border-radius:2px;opacity:.7;transform-origin:center}
   .playing .wv i{animation:eq 1s ease-in-out infinite}
   @keyframes eq{0%,100%{transform:scaleY(.5)}50%{transform:scaleY(1.35)}}
   .tm{color:var(--dim);font-size:13px;white-space:nowrap;font-variant-numeric:tabular-nums}
   .pp{width:46px;height:46px;border-radius:50%;background:var(--ink);display:grid;place-items:center;
-      border:0;cursor:pointer;transition:transform .3s var(--e)}
+      transition:transform .3s var(--e)}
   .pp:hover{transform:scale(1.08)}
+  /* панель управления плеера */
+  .ctrl{background:rgba(16,14,30,.75);border-radius:0 0 19px 19px;padding:12px 22px;
+        display:flex;align-items:center;gap:18px;flex-wrap:wrap;border-top:1px solid var(--hair)}
+  .ctrl .lab{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{padding:7px 14px;border-radius:999px;border:1px solid var(--hair);font-size:13px;color:var(--dim);
+        transition:all .3s}
+  .chip:hover{color:var(--ink)}
+  .chip.on{background:var(--lav);color:#12101F;border-color:var(--lav);font-weight:600}
+  .vol{display:flex;align-items:center;gap:10px;margin-left:auto}
+  .vol input{accent-color:var(--lav);width:120px}
+  .cdn{font-variant-numeric:tabular-nums;color:var(--lav);font-size:13px;min-width:52px;text-align:right}
 
-  /* таймлайн ночи */
   section.block{padding:clamp(70px,10vw,110px) 0 clamp(60px,8vw,90px)}
   h2{font-family:"Bahnschrift Light",Bahnschrift,sans-serif;font-weight:300;
      font-size:clamp(2rem,4.4vw,2.9rem);text-align:center}
@@ -123,7 +134,6 @@
   .pt b{display:block;margin:10px 0 6px;font-size:18px;font-weight:400}
   .pt p{color:var(--dim);font-size:14.5px;max-width:30ch}
 
-  /* CTA */
   .end{border-radius:36px;border:1px solid var(--hair);padding:clamp(36px,5vw,64px);
        background:linear-gradient(135deg,rgba(52,42,86,.55),rgba(18,15,32,.7));
        display:grid;grid-template-columns:1fr auto;align-items:center;gap:clamp(28px,4vw,50px);
@@ -132,22 +142,34 @@
   .end h2 b{font-weight:600;color:var(--lav)}
   .end p{color:var(--dim);margin-top:16px;max-width:46ch}
   .btn{display:inline-flex;align-items:center;gap:14px;background:var(--ink);color:#0A0912;
-       border-radius:999px;padding:13px 13px 13px 28px;font:400 clamp(15px,1.4vw,17px) Corbel;
-       white-space:nowrap;cursor:pointer;transition:transform .35s var(--e)}
+       border-radius:999px;padding:13px 13px 13px 28px;font-size:clamp(15px,1.4vw,17px);
+       white-space:nowrap;transition:transform .35s var(--e)}
   .btn:hover{transform:translateY(-2px)}
-  .btn .ic{width:40px;height:40px;border-radius:50%;background:rgba(10,9,18,.10);display:grid;place-items:center;
-           transition:transform .35s var(--e)}
+  .btn .ic{width:40px;height:40px;border-radius:50%;background:rgba(10,9,18,.10);display:grid;place-items:center;transition:transform .35s var(--e)}
   .btn:hover .ic{transform:translateX(3px)}
   .free{display:block;text-align:center;margin-top:14px;color:var(--dim);font-size:13px}
 
   footer{border-top:1px solid var(--hair);padding:34px 0;text-align:center;color:var(--dim);font-size:13px}
   footer b{color:var(--ink)}
 
-  /* появление */
+  /* дыхательный оверлей */
+  .breath{position:fixed;inset:0;z-index:60;background:rgba(6,5,14,.94);backdrop-filter:blur(10px);
+          display:none;flex-direction:column;align-items:center;justify-content:center;gap:0}
+  .breath.open{display:flex}
+  .breath .close{position:absolute;top:26px;right:26px;width:44px;height:44px;border-radius:50%;
+                 border:1px solid var(--hair);display:grid;place-items:center;font-size:22px;color:var(--dim)}
+  .breath .orb{width:min(56vw,320px);aspect-ratio:1;border-radius:50%;
+               background:radial-gradient(circle at 50% 45%,rgba(169,155,214,.55),rgba(124,138,201,.15) 60%,transparent 72%);
+               display:grid;place-items:center;transform:scale(.55);
+               transition:transform var(--bt,4s) cubic-bezier(.4,0,.4,1)}
+  .breath .phase{font-family:"Bahnschrift Light",Bahnschrift,sans-serif;font-weight:300;
+                 font-size:clamp(1.8rem,5vw,2.6rem);color:var(--ink)}
+  .breath .cnt{font-size:clamp(1rem,2vw,1.15rem);color:var(--lav);margin-top:34px;letter-spacing:.06em}
+  .breath .cyc{position:absolute;bottom:40px;color:var(--dim);font-size:14px}
+
   .rise{opacity:0;transform:translateY(28px);transition:opacity .9s var(--e),transform .9s var(--e)}
   .rise.vis{opacity:1;transform:none}
 
-  /* адаптив */
   @media(max-width:860px){
     .links,.nav .go{display:none}
     .burger{display:flex}
@@ -161,9 +183,9 @@
     .player{margin-top:28px}
     .core{grid-template-columns:48px 1fr auto;gap:14px}
     .wv{display:none}
+    .vol{margin-left:0}
     .tl .row{grid-template-columns:1fr;gap:0}
-    .tl{padding-top:0}
-    .tl .track{display:none}
+    .tl{padding-top:0}.tl .track{display:none}
     .pt{padding:22px 0 22px 30px;border-left:2px solid rgba(169,155,214,.3)}
     .pt::before{top:26px;left:-8px}
     .end{grid-template-columns:1fr;text-align:center}
@@ -173,6 +195,7 @@
   @media(prefers-reduced-motion:reduce){
     *{animation:none!important;scroll-behavior:auto}
     .rise{opacity:1;transform:none;transition:none}
+    .breath .orb{transition:none}
   }
 </style>
 </head>
@@ -198,40 +221,58 @@
   <section class="hero">
     <div class="eyebrow rise"><i></i> 3 миллиона засыпают с нами</div>
     <h1 class="thin rise">Ночь начинается<br>там, где <b>гаснет экран</b></h1>
-    <p class="rise">Истории, дыхание и звуки, которые уводят мысли и приводят сон. Ставишь таймер — телефон гаснет сам.</p>
+    <p class="rise">Дыхание, звуки и таймер сна, которые уводят мысли и приводят сон. Выберите карточку — всё звучит прямо здесь, без установки.</p>
+    <div class="hint rise">🔊 Нажмите карточку — включится настоящий звук. Со звуком лучше в наушниках.</div>
 
     <div class="cascade rise">
-      <button class="cc k1" data-title="Ночные истории" data-meta="Тихий голос · таймер 28 мин">
+      <button class="cc k1" data-sound="pad" data-title="Ночные истории" data-meta="Мягкий эмбиент-фон · 28 мин" aria-pressed="false">
         <span class="du">28 мин</span>
         <div class="bars"><i style="height:40%"></i><i style="height:70%"></i><i style="height:50%"></i><i style="height:90%"></i><i style="height:60%"></i></div>
-        <div><b class="thin">Ночные истории</b><span>Тихий голос уводит мысли</span></div>
+        <div><b class="thin">Ночные истории</b><span>Тихий фон уводит мысли</span></div>
       </button>
-      <button class="cc k2" data-title="Дыхание 4-7-8" data-meta="Замедлить пульс · 10 мин">
-        <span class="du">10 мин</span>
+      <button class="cc k2" data-breath="1" data-title="Дыхание 4-7-8" aria-pressed="false">
+        <span class="du">4-7-8</span>
         <div class="bars"><i style="height:30%"></i><i style="height:55%"></i><i style="height:38%"></i><i style="height:70%"></i><i style="height:45%"></i></div>
-        <div><b class="thin">Дыхание 4-7-8</b><span>Замедлить пульс</span></div>
+        <div><b class="thin">Дыхание 4-7-8</b><span>Живой гид · замедлить пульс</span></div>
       </button>
-      <button class="cc k3" data-title="Дождь по крыше" data-meta="Белый шум · до утра">
+      <button class="cc k3" data-sound="rain" data-title="Дождь по крыше" data-meta="Белый шум дождя · до утра" aria-pressed="false">
         <span class="du">∞</span>
         <div class="bars"><i style="height:52%"></i><i style="height:80%"></i><i style="height:44%"></i><i style="height:66%"></i><i style="height:58%"></i></div>
-        <div><b class="thin">Дождь по крыше</b><span>Белый шум до утра</span></div>
+        <div><b class="thin">Дождь по крыше</b><span>Настоящий шум до утра</span></div>
       </button>
-      <button class="cc k4" data-title="Сканирование тела" data-meta="Отпустить день · 15 мин">
+      <button class="cc k4" data-sound="ocean" data-title="Дом у моря" data-meta="Волны с приливом · 15 мин" aria-pressed="false">
         <span class="du">15 мин</span>
         <div class="bars"><i style="height:36%"></i><i style="height:62%"></i><i style="height:48%"></i><i style="height:78%"></i><i style="height:54%"></i></div>
-        <div><b class="thin">Сканирование тела</b><span>Отпустить день</span></div>
+        <div><b class="thin">Дом у моря</b><span>Волны с приливом</span></div>
       </button>
     </div>
 
     <div class="player" id="player">
       <div class="core">
         <div class="disc"></div>
-        <div class="ti"><b class="thin" id="pTitle">Дом у моря</b><span id="pMeta">Ночная история · Анна Лунёва · таймер 20 мин</span></div>
+        <div class="ti" style="text-align:left">
+          <b class="thin" id="pTitle">Дом у моря</b>
+          <span id="pMeta">Волны с приливом · нажмите ▶, чтобы услышать</span>
+        </div>
         <div class="wv" id="wv"></div>
-        <div class="tm" id="pTime">00:00 / 20:00</div>
         <button class="pp" id="pp" aria-label="Играть">
           <svg id="ppIcon" width="16" height="16" viewBox="0 0 24 24" fill="#0A0912"><path d="M6 4l14 8-14 8z"/></svg>
         </button>
+      </div>
+      <div class="ctrl">
+        <span class="lab">Таймер сна</span>
+        <div class="chips" id="timerChips">
+          <button class="chip on" data-min="0">выкл</button>
+          <button class="chip" data-min="5">5 мин</button>
+          <button class="chip" data-min="15">15 мин</button>
+          <button class="chip" data-min="30">30 мин</button>
+          <button class="chip" data-min="60">1 час</button>
+        </div>
+        <span class="cdn" id="countdown"></span>
+        <div class="vol">
+          <span class="lab">Громкость</span>
+          <input type="range" id="vol" min="0" max="100" value="55" aria-label="Громкость">
+        </div>
       </div>
     </div>
   </section>
@@ -244,9 +285,9 @@
     <div class="tl">
       <div class="track"></div>
       <div class="row">
-        <div class="pt rise"><div class="hh thin">22:30</div><b>Разгрузка</b><p>Дыхание и мягкий свет: пульс замедляется, мысли перестают догонять.</p></div>
-        <div class="pt rise"><div class="hh thin">23:10</div><b>Засыпание</b><p>История с таймером. Голос уводит в сторону, экран гаснет сам.</p></div>
-        <div class="pt rise"><div class="hh thin">02:40</div><b>Глубокая фаза</b><p>Белый шум держит сон, если за окном машина или сосед.</p></div>
+        <div class="pt rise"><div class="hh thin">22:30</div><b>Разгрузка</b><p>Дыхание 4-7-8: пульс замедляется, мысли перестают догонять.</p></div>
+        <div class="pt rise"><div class="hh thin">23:10</div><b>Засыпание</b><p>Звук с таймером. Ставите 15 минут — телефон гаснет сам.</p></div>
+        <div class="pt rise"><div class="hh thin">02:40</div><b>Глубокая фаза</b><p>Шум дождя держит сон, если за окном машина или сосед.</p></div>
         <div class="pt rise"><div class="hh thin">06:45</div><b>Пробуждение</b><p>Будильник ищет лёгкую фазу и будит без рывка.</p></div>
       </div>
     </div>
@@ -268,54 +309,186 @@
   </section>
 </div>
 
-<footer>© 2026 <b>ТИШЕ</b> · приложение для сна · Демо-сайт студии <b>Stack</b></footer>
+<footer>© 2026 <b>ТИШЕ</b> · приложение для сна · Демо-продукт студии <b>Stack</b> · звук генерируется в браузере, без файлов</footer>
+
+<!-- дыхательный гид -->
+<div class="breath" id="breath" role="dialog" aria-label="Дыхание 4-7-8">
+  <button class="close" id="bClose" aria-label="Закрыть">✕</button>
+  <div class="orb" id="orb"><span class="phase" id="bPhase">Приготовьтесь</span></div>
+  <div class="cnt" id="bCnt">Вдох носом · задержка · выдох ртом</div>
+  <div class="cyc" id="bCyc">Цикл 0 из 4</div>
+</div>
 
 <script>
-  // звёзды
-  const sky=document.getElementById('sky');
-  for(let i=0;i<26;i++){const s=document.createElement('div');s.className='star';
-    const sz=Math.random()*2+1;s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*70}vh;left:${Math.random()*100}vw;animation-delay:${Math.random()*5}s`;
-    sky.appendChild(s);}
+"use strict";
+/* ===== звёзды ===== */
+const sky=document.getElementById('sky');
+for(let i=0;i<26;i++){const s=document.createElement('div');s.className='star';
+  const sz=Math.random()*2+1;s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*70}vh;left:${Math.random()*100}vw;animation-delay:${Math.random()*5}s`;
+  sky.appendChild(s);}
+const wv=document.getElementById('wv');
+for(let i=0;i<20;i++){const b=document.createElement('i');b.style.height=(30+Math.random()*60)+'%';b.style.animationDelay=(i*0.05)+'s';wv.appendChild(b);}
 
-  // волна плеера
-  const wv=document.getElementById('wv');
-  for(let i=0;i<20;i++){const b=document.createElement('i');
-    b.style.height=(30+Math.random()*60)+'%';b.style.animationDelay=(i*0.05)+'s';wv.appendChild(b);}
+/* ===== бургер ===== */
+const nav=document.getElementById('nav'),burger=document.getElementById('burger');
+burger.addEventListener('click',()=>nav.classList.toggle('open'));
+nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>nav.classList.remove('open')));
 
-  // бургер
-  const nav=document.getElementById('nav'),burger=document.getElementById('burger');
-  burger.addEventListener('click',()=>nav.classList.toggle('open'));
-  nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>nav.classList.remove('open')));
+/* ===== аудио-движок: звук генерируется, без файлов ===== */
+const Audio={
+  ctx:null,master:null,nodes:[],playing:false,type:null,vol:0.55,
+  init(){
+    if(this.ctx)return;
+    const AC=window.AudioContext||window.webkitAudioContext;
+    this.ctx=new AC();
+    this.master=this.ctx.createGain();
+    this.master.gain.value=0;
+    this.master.connect(this.ctx.destination);
+  },
+  noiseBuffer(brown){
+    const len=this.ctx.sampleRate*4, buf=this.ctx.createBuffer(1,len,this.ctx.sampleRate), d=buf.getChannelData(0);
+    let last=0;
+    for(let i=0;i<len;i++){
+      const w=Math.random()*2-1;
+      if(brown){last=(last+0.02*w)/1.02; d[i]=last*3.2;} else d[i]=w;
+    }
+    return buf;
+  },
+  build(type){
+    this.stopNodes();
+    const c=this.ctx;
+    if(type==='rain'||type==='ocean'){
+      const src=c.createBufferSource();src.buffer=this.noiseBuffer(true);src.loop=true;
+      const lp=c.createBiquadFilter();lp.type='lowpass';
+      lp.frequency.value = type==='rain'?1400:520;
+      const g=c.createGain();g.gain.value=type==='rain'?0.9:1.0;
+      src.connect(lp);lp.connect(g);g.connect(this.master);
+      src.start();
+      this.nodes=[src,lp,g];
+      if(type==='ocean'){ // прилив: медленное набегание волн
+        const lfo=c.createOscillator();lfo.frequency.value=0.08;
+        const lg=c.createGain();lg.gain.value=0.55;
+        lfo.connect(lg);lg.connect(g.gain);lfo.start();this.nodes.push(lfo,lg);
+      }
+    } else { // pad — тёплый дрон для «историй»
+      const g=c.createGain();g.gain.value=0.16;g.connect(this.master);
+      [110,110.6,164.8].forEach((f,i)=>{
+        const o=c.createOscillator();o.type='sine';o.frequency.value=f;
+        const og=c.createGain();og.gain.value=i===2?0.4:1;
+        o.connect(og);og.connect(g);o.start();this.nodes.push(o,og);
+      });
+      const src=c.createBufferSource();src.buffer=this.noiseBuffer(true);src.loop=true;
+      const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=400;
+      const ng=c.createGain();ng.gain.value=0.12;
+      src.connect(lp);lp.connect(ng);ng.connect(this.master);src.start();
+      this.nodes.push(src,lp,ng,g);
+    }
+  },
+  stopNodes(){this.nodes.forEach(n=>{try{n.stop&&n.stop()}catch(e){}try{n.disconnect()}catch(e){}});this.nodes=[]},
+  play(type){
+    this.init();
+    if(this.ctx.state==='suspended')this.ctx.resume();
+    this.type=type;this.build(type);this.playing=true;
+    this.master.gain.cancelScheduledValues(this.ctx.currentTime);
+    this.master.gain.setValueAtTime(this.master.gain.value,this.ctx.currentTime);
+    this.master.gain.linearRampToValueAtTime(this.vol,this.ctx.currentTime+1.2);
+  },
+  stop(fade){
+    if(!this.ctx)return;
+    const t=this.ctx.currentTime, f=fade||0.5;
+    this.master.gain.cancelScheduledValues(t);
+    this.master.gain.setValueAtTime(this.master.gain.value,t);
+    this.master.gain.linearRampToValueAtTime(0,t+f);
+    setTimeout(()=>this.stopNodes(),(f+0.1)*1000);
+    this.playing=false;
+  },
+  setVol(v){this.vol=v;if(this.ctx&&this.playing){this.master.gain.linearRampToValueAtTime(v,this.ctx.currentTime+0.2);}}
+};
 
-  // плеер: play/pause + счётчик времени (демо)
-  const player=document.getElementById('player'),pp=document.getElementById('pp'),
-        ppIcon=document.getElementById('ppIcon'),pTime=document.getElementById('pTime'),
-        pTitle=document.getElementById('pTitle'),pMeta=document.getElementById('pMeta');
-  let playing=false,sec=0,total=1200,timer=null;
-  const PLAY='<path d="M6 4l14 8-14 8z"/>',PAUSE='<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>';
-  const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
-  function render(){pTime.textContent=fmt(sec)+' / '+fmt(total);}
-  function toggle(){
-    playing=!playing;
-    player.classList.toggle('playing',playing);
-    ppIcon.innerHTML=playing?PAUSE:PLAY;
-    pp.setAttribute('aria-label',playing?'Пауза':'Играть');
-    clearInterval(timer);
-    if(playing)timer=setInterval(()=>{sec++;if(sec>=total){sec=0;}render();},1000);
+/* ===== плеер ===== */
+const player=document.getElementById('player'),pp=document.getElementById('pp'),ppIcon=document.getElementById('ppIcon'),
+      pTitle=document.getElementById('pTitle'),pMeta=document.getElementById('pMeta');
+const PLAY='<path d="M6 4l14 8-14 8z"/>',PAUSE='<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>';
+let current='ocean';
+function setIcon(p){ppIcon.innerHTML=p?PAUSE:PLAY;pp.setAttribute('aria-label',p?'Пауза':'Играть');player.classList.toggle('playing',p);}
+function markCards(){document.querySelectorAll('.cc[data-sound]').forEach(c=>c.setAttribute('aria-pressed', (Audio.playing&&c.dataset.sound===current)?'true':'false'));}
+function playSound(type){current=type;Audio.play(type);setIcon(true);markCards();}
+pp.addEventListener('click',()=>{
+  if(Audio.playing){Audio.stop();setIcon(false);markCards();}
+  else{playSound(current);}
+});
+document.querySelectorAll('.cc[data-sound]').forEach(c=>c.addEventListener('click',()=>{
+  pTitle.textContent=c.dataset.title;pMeta.textContent=c.dataset.meta;
+  if(Audio.playing&&current===c.dataset.sound){Audio.stop();setIcon(false);markCards();}
+  else{playSound(c.dataset.sound);player.scrollIntoView({behavior:'smooth',block:'center'});}
+}));
+
+/* ===== громкость ===== */
+document.getElementById('vol').addEventListener('input',e=>Audio.setVol(e.target.value/100));
+
+/* ===== таймер сна ===== */
+const chips=document.getElementById('timerChips'),cdn=document.getElementById('countdown');
+let sleepTimer=null,deadline=0;
+function fmt(ms){ms=Math.max(0,ms);const s=Math.round(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+chips.addEventListener('click',e=>{
+  const b=e.target.closest('.chip');if(!b)return;
+  chips.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  clearInterval(sleepTimer);const min=+b.dataset.min;
+  if(min===0){cdn.textContent='';return;}
+  deadline=Date.now()+min*60000;
+  sleepTimer=setInterval(()=>{
+    const left=deadline-Date.now();
+    if(left<=0){clearInterval(sleepTimer);cdn.textContent='';Audio.stop(8);setIcon(false);markCards();
+      chips.querySelectorAll('.chip')[0].click();return;}
+    cdn.textContent='⏱ '+fmt(left);
+  },500);
+});
+
+/* ===== дыхательный гид 4-7-8 ===== */
+const breath=document.getElementById('breath'),orb=document.getElementById('orb'),bPhase=document.getElementById('bPhase'),
+      bCnt=document.getElementById('bCnt'),bCyc=document.getElementById('bCyc');
+let bTimers=[],bTone=null;
+const PHASES=[{n:'Вдох',s:4,scale:1},{n:'Задержка',s:7,scale:1},{n:'Выдох',s:8,scale:.55}];
+function tone(on){
+  if(!Audio.ctx)return;
+  if(on){bTone=Audio.ctx.createOscillator();const g=Audio.ctx.createGain();
+    bTone.frequency.value=196;bTone.type='sine';g.gain.value=0;bTone.connect(g);g.connect(Audio.ctx.destination);
+    g.gain.linearRampToValueAtTime(0.04,Audio.ctx.currentTime+1);bTone._g=g;bTone.start();}
+  else if(bTone){bTone._g.gain.linearRampToValueAtTime(0,Audio.ctx.currentTime+.6);const b=bTone;setTimeout(()=>{try{b.stop()}catch(e){}},700);bTone=null;}
+}
+function clearBreath(){bTimers.forEach(clearTimeout);bTimers=[];tone(false);}
+function openBreath(){
+  Audio.init();if(Audio.ctx.state==='suspended')Audio.ctx.resume();
+  breath.classList.add('open');document.body.style.overflow='hidden';
+  let cycle=0;const total=4;
+  function runCycle(){
+    if(cycle>=total){bPhase.textContent='Готово';bCnt.textContent='Пульс замедлился. Можно спать.';bCyc.textContent='';tone(false);return;}
+    cycle++;bCyc.textContent=`Цикл ${cycle} из ${total}`;
+    let t=0;
+    PHASES.forEach((ph,idx)=>{
+      bTimers.push(setTimeout(()=>{
+        bPhase.textContent=ph.n;
+        orb.style.setProperty('--bt',ph.s+'s');
+        orb.style.transform='scale('+(idx===2?.55:1)+')';
+        bCnt.textContent = idx===0?'Медленно, через нос':idx===1?'Держим':'Полностью, через рот';
+        tone(idx===0);
+      },t*1000));
+      t+=ph.s;
+    });
+    bTimers.push(setTimeout(runCycle,t*1000));
   }
-  pp.addEventListener('click',toggle);
+  bPhase.textContent='Приготовьтесь';bCnt.textContent='Начинаем через 3 секунды…';
+  bTimers.push(setTimeout(runCycle,3000));
+}
+function closeBreath(){breath.classList.remove('open');document.body.style.overflow='';clearBreath();orb.style.transform='scale(.55)';}
+document.querySelector('.cc[data-breath]').addEventListener('click',openBreath);
+document.getElementById('bClose').addEventListener('click',closeBreath);
+breath.addEventListener('click',e=>{if(e.target===breath)closeBreath();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&breath.classList.contains('open'))closeBreath();});
 
-  // карточки грузятся в плеер
-  document.querySelectorAll('.cc').forEach(c=>c.addEventListener('click',()=>{
-    pTitle.textContent=c.dataset.title;pMeta.textContent=c.dataset.meta;
-    sec=0;render();if(!playing)toggle();
-    player.scrollIntoView({behavior:'smooth',block:'center'});
-  }));
-  render();
-
-  // появление по скроллу
-  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');io.unobserve(e.target);}}),{threshold:.15});
-  document.querySelectorAll('.rise').forEach((el,i)=>{el.style.transitionDelay=(i%4*0.07)+'s';io.observe(el);});
+/* ===== появление ===== */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');io.unobserve(e.target);}}),{threshold:.15});
+document.querySelectorAll('.rise').forEach((el,i)=>{el.style.transitionDelay=(i%4*0.07)+'s';io.observe(el);});
 </script>
 </body>
 </html>
