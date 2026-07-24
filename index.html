@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ТИШЕ — приложение для сна</title>
+<meta name="description" content="Истории, дыхание и звуки, которые уводят мысли и приводят сон. Первые 7 дней бесплатно.">
+<style>
+  :root{
+    --bg:#070610; --ink:#ECEAF6; --dim:#8B87A8; --lav:#A99BD6; --peri:#7C8AC9;
+    --hair:rgba(255,255,255,.10); --glass:rgba(255,255,255,.055);
+    --e:cubic-bezier(.16,1,.3,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);
+       font:300 clamp(15px,1.1vw,17px)/1.65 Corbel,"Segoe UI",Candara,sans-serif;
+       -webkit-font-smoothing:antialiased;overflow-x:hidden}
+  .thin{font-family:"Bahnschrift Light",Bahnschrift,"Segoe UI Light",Corbel,sans-serif;
+        font-weight:300;letter-spacing:-.015em}
+  svg{display:block}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 clamp(20px,5vw,64px);position:relative;z-index:1}
+
+  /* ночное небо */
+  .sky{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .moon{position:absolute;top:-24vw;left:50%;transform:translateX(-50%);
+        width:min(920px,120vw);aspect-ratio:1;border-radius:50%;
+        background:radial-gradient(circle at 50% 60%,rgba(169,155,214,.28),rgba(124,138,201,.10) 46%,transparent 68%)}
+  .moon2{position:absolute;top:9vh;right:8vw;width:clamp(90px,13vw,190px);aspect-ratio:1;border-radius:50%;
+         background:radial-gradient(circle at 38% 36%,#DED8F0,#A29AC9 58%,#6E6796);
+         box-shadow:0 0 110px rgba(169,155,214,.28)}
+  .star{position:absolute;background:#fff;border-radius:50%;animation:tw 5s ease-in-out infinite}
+  @keyframes tw{0%,100%{opacity:.25}50%{opacity:.8}}
+
+  /* навигация */
+  header{position:sticky;top:0;z-index:40;display:flex;justify-content:center;padding:20px 16px}
+  .nav{display:flex;align-items:center;gap:6px;background:rgba(18,16,30,.55);
+       border:1px solid var(--hair);border-radius:999px;padding:7px 7px 7px 20px;
+       backdrop-filter:blur(20px);max-width:100%}
+  .bd{display:flex;align-items:center;gap:9px;font-size:19px;letter-spacing:.12em;margin-right:14px}
+  .links{display:flex;gap:2px}
+  .links a{color:var(--dim);font-size:14px;padding:9px 15px;border-radius:999px;transition:color .3s,background .3s}
+  .links a:hover{color:var(--ink)}
+  .links a.on{background:rgba(255,255,255,.10);color:var(--ink)}
+  .go{background:var(--ink);color:#0A0912;border-radius:999px;padding:10px 20px;font-size:14px;
+      transition:transform .35s var(--e)}
+  .go:hover{transform:translateY(-2px)}
+  .burger{display:none;width:40px;height:40px;border:0;background:none;cursor:pointer;
+          flex-direction:column;gap:5px;align-items:center;justify-content:center}
+  .burger span{width:20px;height:2px;background:var(--ink);transition:.35s var(--e)}
+
+  /* герой */
+  .hero{text-align:center;padding:clamp(48px,7vw,84px) 0 0}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--hair);
+           border-radius:999px;padding:8px 18px;font-size:11px;letter-spacing:.24em;
+           text-transform:uppercase;color:var(--lav)}
+  .eyebrow i{width:6px;height:6px;border-radius:50%;background:var(--lav);
+             box-shadow:0 0 0 0 rgba(169,155,214,.5);animation:pulse 2.4s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(169,155,214,.4)}70%{box-shadow:0 0 0 9px transparent}100%{box-shadow:0 0 0 0 transparent}}
+  h1{font-family:"Bahnschrift Light",Bahnschrift,sans-serif;font-weight:300;
+     font-size:clamp(2.6rem,7vw,5.6rem);line-height:1.0;margin-top:26px;text-wrap:balance}
+  h1 b{font-weight:600;color:var(--lav)}
+  .hero>p{margin:22px auto 0;max-width:44ch;color:var(--dim);font-size:clamp(1rem,1.4vw,1.2rem)}
+
+  /* каскад карточек — кликабельные */
+  .cascade{position:relative;height:clamp(300px,34vw,340px);margin-top:clamp(30px,5vw,50px)}
+  .cc{position:absolute;top:0;left:50%;width:clamp(240px,22vw,300px);aspect-ratio:1;
+      border-radius:30px;border:1px solid var(--hair);padding:24px;display:flex;
+      flex-direction:column;justify-content:space-between;text-align:left;cursor:pointer;
+      box-shadow:0 40px 80px rgba(0,0,0,.5);transition:transform .55s var(--e),box-shadow .4s}
+  .cc:hover{box-shadow:0 50px 100px rgba(0,0,0,.6)}
+  .cc .du{font-size:12px;color:rgba(255,255,255,.6)}
+  .cc b{font-family:"Bahnschrift Light",Bahnschrift,sans-serif;font-weight:400;font-size:clamp(20px,1.7vw,26px);display:block}
+  .cc span{color:rgba(255,255,255,.62);font-size:14px}
+  .cc .bars{display:flex;align-items:flex-end;gap:3px;height:32px;opacity:.55}
+  .cc .bars i{width:4px;background:#fff;border-radius:2px}
+  .k1{--rot:-8deg;--x:-30vw;background:linear-gradient(155deg,#2C2450,#191436)}
+  .k2{--rot:-2deg;--x:-10vw;background:linear-gradient(155deg,#243256,#141C36)}
+  .k3{--rot:4deg;--x:10vw;background:linear-gradient(155deg,#3B2A52,#211734)}
+  .k4{--rot:10deg;--x:30vw;background:linear-gradient(155deg,#23404A,#13232B)}
+  .cc{transform:translateX(var(--x)) rotate(var(--rot))}
+  .cc:hover{transform:translateX(var(--x)) rotate(0deg) translateY(-10px)}
+
+  /* плеер */
+  .player{position:relative;margin:clamp(-24px,-2vw,-30px) auto 0;max-width:860px;z-index:3;
+          background:var(--glass);border:1px solid var(--hair);border-radius:26px;padding:8px;
+          backdrop-filter:blur(26px)}
+  .core{background:linear-gradient(150deg,rgba(42,35,68,.92),rgba(16,14,30,.92));
+        border-radius:19px;padding:16px 22px;display:grid;
+        grid-template-columns:56px 1fr auto auto;gap:clamp(12px,2vw,22px);align-items:center;
+        box-shadow:inset 0 1px 1px rgba(255,255,255,.09)}
+  .disc{width:56px;height:56px;border-radius:50%;flex:none;
+        background:conic-gradient(from 0deg,#6D5B9E,#7C8AC9,#96729E,#6D5B9E);position:relative}
+  .disc::after{content:"";position:absolute;inset:0;margin:auto;width:18px;height:18px;
+               border-radius:50%;background:#12101F}
+  .playing .disc{animation:spin 6s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .ti b{font-family:"Bahnschrift Light",Bahnschrift,sans-serif;font-weight:400;font-size:clamp(16px,1.5vw,19px);display:block}
+  .ti span{color:var(--dim);font-size:13px}
+  .wv{display:flex;align-items:center;gap:3px;height:30px}
+  .wv i{width:3px;background:var(--lav);border-radius:2px;opacity:.7;transition:transform .3s}
+  .playing .wv i{animation:eq 1s ease-in-out infinite}
+  @keyframes eq{0%,100%{transform:scaleY(.5)}50%{transform:scaleY(1.35)}}
+  .tm{color:var(--dim);font-size:13px;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .pp{width:46px;height:46px;border-radius:50%;background:var(--ink);display:grid;place-items:center;
+      border:0;cursor:pointer;transition:transform .3s var(--e)}
+  .pp:hover{transform:scale(1.08)}
+
+  /* таймлайн ночи */
+  section.block{padding:clamp(70px,10vw,110px) 0 clamp(60px,8vw,90px)}
+  h2{font-family:"Bahnschrift Light",Bahnschrift,sans-serif;font-weight:300;
+     font-size:clamp(2rem,4.4vw,2.9rem);text-align:center}
+  .sub{text-align:center;color:var(--dim);margin:12px auto 0;max-width:48ch;font-size:clamp(1rem,1.5vw,1.15rem)}
+  .tl{position:relative;padding-top:44px;margin-top:52px}
+  .tl .track{position:absolute;top:0;left:0;right:0;height:2px;
+             background:linear-gradient(90deg,rgba(169,155,214,.15),rgba(169,155,214,.75),rgba(124,138,201,.5),rgba(169,155,214,.15))}
+  .tl .row{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(18px,3vw,28px)}
+  .pt{position:relative}
+  .pt::before{content:"";position:absolute;top:-52px;left:0;width:14px;height:14px;border-radius:50%;
+              background:var(--lav);box-shadow:0 0 0 6px rgba(169,155,214,.14)}
+  .hh{font-family:"Bahnschrift Light",Bahnschrift,sans-serif;font-weight:400;font-size:clamp(24px,3vw,34px)}
+  .pt b{display:block;margin:10px 0 6px;font-size:18px;font-weight:400}
+  .pt p{color:var(--dim);font-size:14.5px;max-width:30ch}
+
+  /* CTA */
+  .end{border-radius:36px;border:1px solid var(--hair);padding:clamp(36px,5vw,64px);
+       background:linear-gradient(135deg,rgba(52,42,86,.55),rgba(18,15,32,.7));
+       display:grid;grid-template-columns:1fr auto;align-items:center;gap:clamp(28px,4vw,50px);
+       backdrop-filter:blur(20px)}
+  .end h2{text-align:left}
+  .end h2 b{font-weight:600;color:var(--lav)}
+  .end p{color:var(--dim);margin-top:16px;max-width:46ch}
+  .btn{display:inline-flex;align-items:center;gap:14px;background:var(--ink);color:#0A0912;
+       border-radius:999px;padding:13px 13px 13px 28px;font:400 clamp(15px,1.4vw,17px) Corbel;
+       white-space:nowrap;cursor:pointer;transition:transform .35s var(--e)}
+  .btn:hover{transform:translateY(-2px)}
+  .btn .ic{width:40px;height:40px;border-radius:50%;background:rgba(10,9,18,.10);display:grid;place-items:center;
+           transition:transform .35s var(--e)}
+  .btn:hover .ic{transform:translateX(3px)}
+  .free{display:block;text-align:center;margin-top:14px;color:var(--dim);font-size:13px}
+
+  footer{border-top:1px solid var(--hair);padding:34px 0;text-align:center;color:var(--dim);font-size:13px}
+  footer b{color:var(--ink)}
+
+  /* появление */
+  .rise{opacity:0;transform:translateY(28px);transition:opacity .9s var(--e),transform .9s var(--e)}
+  .rise.vis{opacity:1;transform:none}
+
+  /* адаптив */
+  @media(max-width:860px){
+    .links,.nav .go{display:none}
+    .burger{display:flex}
+    .nav.open{flex-direction:column;align-items:stretch;border-radius:24px;padding:16px;gap:8px;width:min(92vw,340px)}
+    .nav.open .links{display:flex;flex-direction:column}
+    .nav.open .links a{font-size:16px;padding:12px 16px}
+    .nav.open .go{display:block;text-align:center;margin-top:4px}
+    .cascade{height:auto;display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:34px}
+    .cc{position:static;width:auto;transform:none!important;aspect-ratio:1.15}
+    .cc:hover{transform:translateY(-6px)!important}
+    .player{margin-top:28px}
+    .core{grid-template-columns:48px 1fr auto;gap:14px}
+    .wv{display:none}
+    .tl .row{grid-template-columns:1fr;gap:0}
+    .tl{padding-top:0}
+    .tl .track{display:none}
+    .pt{padding:22px 0 22px 30px;border-left:2px solid rgba(169,155,214,.3)}
+    .pt::before{top:26px;left:-8px}
+    .end{grid-template-columns:1fr;text-align:center}
+    .end h2,.end p{text-align:center;margin-left:auto;margin-right:auto}
+  }
+  @media(max-width:460px){.cascade{grid-template-columns:1fr}}
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;scroll-behavior:auto}
+    .rise{opacity:1;transform:none;transition:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="sky" id="sky"><div class="moon"></div><div class="moon2"></div></div>
+
+<header>
+  <nav class="nav" id="nav">
+    <span class="bd">
+      <svg width="22" height="22" viewBox="0 0 30 30" fill="none"><path d="M22 20A10 10 0 1 1 14 5a8 8 0 0 0 8 15Z" fill="#A99BD6"/></svg>
+      <span class="thin">ТИШЕ</span>
+    </span>
+    <div class="links">
+      <a href="#" class="on">Сон</a><a href="#night">Как это работает</a><a href="#price">Цена</a>
+    </div>
+    <a href="#price" class="go">7 дней бесплатно</a>
+    <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
+  </nav>
+</header>
+
+<div class="wrap">
+  <section class="hero">
+    <div class="eyebrow rise"><i></i> 3 миллиона засыпают с нами</div>
+    <h1 class="thin rise">Ночь начинается<br>там, где <b>гаснет экран</b></h1>
+    <p class="rise">Истории, дыхание и звуки, которые уводят мысли и приводят сон. Ставишь таймер — телефон гаснет сам.</p>
+
+    <div class="cascade rise">
+      <button class="cc k1" data-title="Ночные истории" data-meta="Тихий голос · таймер 28 мин">
+        <span class="du">28 мин</span>
+        <div class="bars"><i style="height:40%"></i><i style="height:70%"></i><i style="height:50%"></i><i style="height:90%"></i><i style="height:60%"></i></div>
+        <div><b class="thin">Ночные истории</b><span>Тихий голос уводит мысли</span></div>
+      </button>
+      <button class="cc k2" data-title="Дыхание 4-7-8" data-meta="Замедлить пульс · 10 мин">
+        <span class="du">10 мин</span>
+        <div class="bars"><i style="height:30%"></i><i style="height:55%"></i><i style="height:38%"></i><i style="height:70%"></i><i style="height:45%"></i></div>
+        <div><b class="thin">Дыхание 4-7-8</b><span>Замедлить пульс</span></div>
+      </button>
+      <button class="cc k3" data-title="Дождь по крыше" data-meta="Белый шум · до утра">
+        <span class="du">∞</span>
+        <div class="bars"><i style="height:52%"></i><i style="height:80%"></i><i style="height:44%"></i><i style="height:66%"></i><i style="height:58%"></i></div>
+        <div><b class="thin">Дождь по крыше</b><span>Белый шум до утра</span></div>
+      </button>
+      <button class="cc k4" data-title="Сканирование тела" data-meta="Отпустить день · 15 мин">
+        <span class="du">15 мин</span>
+        <div class="bars"><i style="height:36%"></i><i style="height:62%"></i><i style="height:48%"></i><i style="height:78%"></i><i style="height:54%"></i></div>
+        <div><b class="thin">Сканирование тела</b><span>Отпустить день</span></div>
+      </button>
+    </div>
+
+    <div class="player" id="player">
+      <div class="core">
+        <div class="disc"></div>
+        <div class="ti"><b class="thin" id="pTitle">Дом у моря</b><span id="pMeta">Ночная история · Анна Лунёва · таймер 20 мин</span></div>
+        <div class="wv" id="wv"></div>
+        <div class="tm" id="pTime">00:00 / 20:00</div>
+        <button class="pp" id="pp" aria-label="Играть">
+          <svg id="ppIcon" width="16" height="16" viewBox="0 0 24 24" fill="#0A0912"><path d="M6 4l14 8-14 8z"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="wrap">
+  <section class="block" id="night">
+    <h2 class="thin rise">Что происходит за ночь</h2>
+    <p class="sub rise">Приложение ведёт вас от первой зевоты до будильника</p>
+    <div class="tl">
+      <div class="track"></div>
+      <div class="row">
+        <div class="pt rise"><div class="hh thin">22:30</div><b>Разгрузка</b><p>Дыхание и мягкий свет: пульс замедляется, мысли перестают догонять.</p></div>
+        <div class="pt rise"><div class="hh thin">23:10</div><b>Засыпание</b><p>История с таймером. Голос уводит в сторону, экран гаснет сам.</p></div>
+        <div class="pt rise"><div class="hh thin">02:40</div><b>Глубокая фаза</b><p>Белый шум держит сон, если за окном машина или сосед.</p></div>
+        <div class="pt rise"><div class="hh thin">06:45</div><b>Пробуждение</b><p>Будильник ищет лёгкую фазу и будит без рывка.</p></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="wrap">
+  <section class="block" id="price" style="padding-top:0">
+    <div class="end rise">
+      <div>
+        <h2 class="thin">Ложись, <b>остальное</b> сделаем мы</h2>
+        <p>Первые 7 дней бесплатно. Дальше 299 ₽ в месяц или отмена в один тап, без звонков и вопросов.</p>
+      </div>
+      <div>
+        <button class="btn">Скачать ТИШЕ <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="#0A0912"><path d="M6 4l14 8-14 8z"/></svg></span></button>
+        <span class="free">App Store · Google Play</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer>© 2026 <b>ТИШЕ</b> · приложение для сна · Демо-сайт студии <b>Stack</b></footer>
+
+<script>
+  // звёзды
+  const sky=document.getElementById('sky');
+  for(let i=0;i<26;i++){const s=document.createElement('div');s.className='star';
+    const sz=Math.random()*2+1;s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*70}vh;left:${Math.random()*100}vw;animation-delay:${Math.random()*5}s`;
+    sky.appendChild(s);}
+
+  // волна плеера
+  const wv=document.getElementById('wv');
+  for(let i=0;i<20;i++){const b=document.createElement('i');
+    b.style.height=(30+Math.random()*60)+'%';b.style.animationDelay=(i*0.05)+'s';wv.appendChild(b);}
+
+  // бургер
+  const nav=document.getElementById('nav'),burger=document.getElementById('burger');
+  burger.addEventListener('click',()=>nav.classList.toggle('open'));
+  nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>nav.classList.remove('open')));
+
+  // плеер: play/pause + счётчик времени (демо)
+  const player=document.getElementById('player'),pp=document.getElementById('pp'),
+        ppIcon=document.getElementById('ppIcon'),pTime=document.getElementById('pTime'),
+        pTitle=document.getElementById('pTitle'),pMeta=document.getElementById('pMeta');
+  let playing=false,sec=0,total=1200,timer=null;
+  const PLAY='<path d="M6 4l14 8-14 8z"/>',PAUSE='<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>';
+  const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+  function render(){pTime.textContent=fmt(sec)+' / '+fmt(total);}
+  function toggle(){
+    playing=!playing;
+    player.classList.toggle('playing',playing);
+    ppIcon.innerHTML=playing?PAUSE:PLAY;
+    pp.setAttribute('aria-label',playing?'Пауза':'Играть');
+    clearInterval(timer);
+    if(playing)timer=setInterval(()=>{sec++;if(sec>=total){sec=0;}render();},1000);
+  }
+  pp.addEventListener('click',toggle);
+
+  // карточки грузятся в плеер
+  document.querySelectorAll('.cc').forEach(c=>c.addEventListener('click',()=>{
+    pTitle.textContent=c.dataset.title;pMeta.textContent=c.dataset.meta;
+    sec=0;render();if(!playing)toggle();
+    player.scrollIntoView({behavior:'smooth',block:'center'});
+  }));
+  render();
+
+  // появление по скроллу
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');io.unobserve(e.target);}}),{threshold:.15});
+  document.querySelectorAll('.rise').forEach((el,i)=>{el.style.transitionDelay=(i%4*0.07)+'s';io.observe(el);});
+</script>
+</body>
+</html>
