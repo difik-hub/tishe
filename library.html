@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Библиотека звуков — ТИШЕ</title>
+<meta name="description" content="15 звуков для сна, фокуса и ASMR. Смешивайте несколько слоёв, у каждого своя громкость. Всё звучит прямо в браузере.">
+<meta name="theme-color" content="#0A0913">
+<link rel="stylesheet" href="assets/app.css">
+<style>
+  .lead{padding:clamp(40px,6vw,66px) 0 26px}
+  .lead p{color:var(--dim);max-width:56ch;margin-top:14px;font-size:clamp(1rem,1.4vw,1.15rem)}
+
+  /* панель управления */
+  .bar{position:sticky;top:70px;z-index:30;display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+       background:rgba(16,13,30,.8);backdrop-filter:blur(16px);border:1px solid var(--hair);
+       border-radius:16px;padding:14px 20px;margin-bottom:24px}
+  .bar .cnt{font-size:14px;color:var(--dim)}
+  .bar .cnt b{color:var(--lav);font-family:Consolas,monospace}
+  .mv{display:flex;align-items:center;gap:11px;margin-left:auto}
+  .mv span{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+  .mv input{accent-color:var(--lav);width:130px}
+  .stop{border:1px solid var(--hair);border-radius:11px;padding:9px 18px;font-size:14px;color:var(--dim);transition:all .3s}
+  .stop:hover{color:var(--ink);border-color:var(--lav)}
+  .stop:disabled{opacity:.4;cursor:default}
+
+  /* фильтр категорий */
+  .cats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
+  .cat{padding:9px 18px;border-radius:999px;border:1px solid var(--hair);font-size:14px;color:var(--dim);transition:all .3s}
+  .cat:hover{color:var(--ink)}
+  .cat.on{background:var(--panel2);color:var(--ink);border-color:var(--lav)}
+
+  /* сетка звуков */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(186px,1fr));gap:16px}
+  .snd{position:relative;border:1px solid var(--hair);border-radius:20px;padding:22px 20px 18px;
+       background:var(--panel);text-align:left;transition:transform .5s var(--e),border-color .3s,background .3s;
+       display:flex;flex-direction:column;gap:14px;min-height:172px;overflow:hidden}
+  .snd:hover{transform:translateY(-4px);background:var(--panel2)}
+  .snd.on{border-color:var(--lav);background:linear-gradient(160deg,rgba(126,139,207,.18),rgba(16,13,30,.4))}
+  .snd .em{font-size:34px;line-height:1;filter:saturate(.9)}
+  .snd .nm{font-family:"Bahnschrift Light",Bahnschrift,sans-serif;font-weight:400;font-size:19px}
+  .snd .ct{font-size:12px;color:var(--dim);letter-spacing:.06em}
+  .snd .eq{position:absolute;right:18px;top:22px;display:none;align-items:flex-end;gap:2px;height:20px}
+  .snd.on .eq{display:flex}
+  .snd .eq i{width:3px;background:var(--lav);border-radius:2px;animation:eq 1s ease-in-out infinite}
+  .snd .eq i:nth-child(2){animation-delay:.15s}.snd .eq i:nth-child(3){animation-delay:.3s}.snd .eq i:nth-child(4){animation-delay:.45s}
+  @keyframes eq{0%,100%{height:6px}50%{height:20px}}
+  .snd .vol{margin-top:auto;display:none}
+  .snd.on .vol{display:block}
+  .snd .vol input{width:100%;accent-color:var(--lav)}
+  .snd .foot{display:flex;align-items:center;justify-content:space-between;margin-top:auto}
+  .snd .state{font-size:12px;color:var(--dim)}
+  .snd.on .state{color:var(--lav)}
+
+  /* пресеты-миксы */
+  .mixes{margin-top:56px}
+  .mixes h2{margin-bottom:6px}
+  .mixes .sub{color:var(--dim);margin-bottom:22px}
+  .prow{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+  .preset{border:1px solid var(--hair);border-radius:16px;padding:20px 22px;background:var(--panel);
+          text-align:left;transition:all .35s var(--e)}
+  .preset:hover{transform:translateY(-3px);border-color:var(--lav)}
+  .preset b{font-size:18px;display:block;margin-bottom:4px}
+  .preset span{color:var(--dim);font-size:13.5px}
+  .preset .em{font-size:13px;margin-top:10px;color:var(--lav)}
+
+  @media(max-width:560px){.grid{grid-template-columns:1fr 1fr}.mv{margin-left:0;width:100%}.mv input{flex:1}}
+</style>
+</head>
+<body>
+<div class="aura"></div><div class="grain"></div>
+
+<header class="hdr" id="hdr">
+  <div class="wrap in">
+    <a href="index.html" class="brand"><svg width="22" height="22" viewBox="0 0 30 30"><path d="M22 20A10 10 0 1 1 14 5a8 8 0 0 0 8 15Z" fill="#B3A4E0"/></svg><span class="thin">ТИШЕ</span></a>
+    <nav class="nav">
+      <a href="library.html" class="on">Библиотека</a>
+      <a href="focus.html">Фокус и дыхание</a>
+      <a href="index.html#about">О приложении</a>
+    </nav>
+    <a href="index.html#price" class="cta">7 дней бесплатно</a>
+    <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="lead">
+    <div class="kick"><i></i> Библиотека · 15 звуков</div>
+    <h1 class="thin" style="margin-top:16px">Соберите свой<br><b>звук ночи</b></h1>
+    <p>Включайте несколько слоёв сразу — дождь под треск костра, ветер со сверчками. У каждого звука своя громкость. Ничего не скачивается: всё синтезируется прямо в браузере.</p>
+  </section>
+
+  <div class="bar">
+    <div class="cnt">В миксе: <b id="cnt">0</b> из 15</div>
+    <button class="stop" id="stop" disabled>■ Остановить всё</button>
+    <div class="mv"><span>Общая громкость</span><input type="range" id="mvol" min="0" max="100" value="90" aria-label="Общая громкость"></div>
+  </div>
+
+  <div class="cats" id="cats"></div>
+  <div class="grid" id="grid"></div>
+
+  <section class="mixes">
+    <h2 class="thin">Готовые миксы</h2>
+    <p class="sub">Нажмите — включатся сразу несколько звуков в нужном балансе</p>
+    <div class="prow" id="presets"></div>
+  </section>
+</main>
+
+<footer class="foot"><div class="wrap in">
+  <span>© 2026 <b>ТИШЕ</b> · звуки для сна, фокуса и ASMR</span>
+  <span>Демо-продукт студии <b>Stack</b> · звук генерируется в браузере</span>
+</div></footer>
+
+<script src="assets/engine.js"></script>
+<script>
+  document.getElementById('burger').addEventListener('click',()=>document.getElementById('hdr').classList.toggle('open'));
+
+  const grid=document.getElementById('grid'), catsEl=document.getElementById('cats'),
+        cntEl=document.getElementById('cnt'), stopBtn=document.getElementById('stop');
+  const cats=['Все',...[...new Set(Engine.CATALOG.map(s=>s.cat))]];
+  let filter='Все';
+
+  cats.forEach(c=>{const b=document.createElement('button');b.className='cat'+(c==='Все'?' on':'');b.textContent=c;
+    b.onclick=()=>{filter=c;[...catsEl.children].forEach(x=>x.classList.toggle('on',x.textContent===c));render();};
+    catsEl.appendChild(b);});
+
+  function render(){
+    grid.innerHTML='';
+    Engine.CATALOG.filter(s=>filter==='Все'||s.cat===filter).forEach(s=>{
+      const on=Engine.isOn(s.id);
+      const el=document.createElement('div');el.className='snd'+(on?' on':'');el.dataset.id=s.id;
+      el.innerHTML=`<div class="eq"><i></i><i></i><i></i><i></i></div>
+        <div class="em">${s.emoji}</div>
+        <div><div class="nm">${s.name}</div><div class="ct">${s.cat}</div></div>
+        <div class="vol"><input type="range" min="0" max="100" value="60" aria-label="Громкость ${s.name}"></div>
+        <div class="foot"><span class="state">${on?'В миксе':'Выключен'}</span></div>`;
+      el.addEventListener('click',e=>{if(e.target.type==='range')return;toggle(s.id);});
+      el.querySelector('.vol input').addEventListener('input',e=>Engine.setVol(s.id,e.target.value/100));
+      grid.appendChild(el);
+    });
+  }
+  function toggle(id){Engine.toggle(id);render();}
+  Engine.onChange(ids=>{cntEl.textContent=ids.length;stopBtn.disabled=ids.length===0;});
+  stopBtn.addEventListener('click',()=>{Engine.stopAll();setTimeout(render,50);});
+  document.getElementById('mvol').addEventListener('input',e=>Engine.setMaster(e.target.value/100));
+  render();
+
+  // пресеты
+  const PRESETS=[
+    {name:'Сон под дождём', desc:'Дождь + костёр + ветер', ids:['rain','fire','wind'], em:'🌧️ 🔥 🌬️'},
+    {name:'Глубокий фокус', desc:'Коричневый шум + часы', ids:['brown','clock'], em:'🟤 🕰️'},
+    {name:'Лесное утро', desc:'Лес + ручей + птицы', ids:['forest','stream'], em:'🌲 🏞️'},
+    {name:'Летняя ночь', desc:'Сверчки + ветер', ids:['crickets','wind'], em:'🦗 🌬️'},
+    {name:'Уютное кафе', desc:'Кофейня + дождь', ids:['cafe','rain'], em:'☕ 🌧️'},
+    {name:'Шторм', desc:'Гроза + океан', ids:['storm','ocean'], em:'⛈️ 🌊'},
+  ];
+  const pr=document.getElementById('presets');
+  PRESETS.forEach(p=>{const b=document.createElement('button');b.className='preset';
+    b.innerHTML=`<b>${p.name}</b><span>${p.desc}</span><div class="em">${p.em}</div>`;
+    b.onclick=()=>{Engine.stopAll(0.2);setTimeout(()=>{p.ids.forEach(id=>Engine.toggle(id));render();},260);};
+    pr.appendChild(b);});
+</script>
+</body>
+</html>
