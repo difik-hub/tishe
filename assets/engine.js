@@ -7,12 +7,27 @@ const Engine = (() => {
   const bufCache = {};
   const listeners = new Set();
 
+  function impulse(dur, decay){
+    const len = ctx.sampleRate*dur, buf = ctx.createBuffer(2, len, ctx.sampleRate);
+    for(let ch=0; ch<2; ch++){ const d=buf.getChannelData(ch);
+      for(let i=0;i<len;i++){ d[i]=(Math.random()*2-1)*Math.pow(1-i/len, decay); } }
+    return buf;
+  }
   function ac(){
     if(!ctx){
       const AC = window.AudioContext || window.webkitAudioContext;
       ctx = new AC();
       master = ctx.createGain(); master.gain.value = 0.9;
-      master.connect(ctx.destination);
+      // мягкий срез верхов — шум перестаёт резать уши
+      const mlp = ctx.createBiquadFilter(); mlp.type='lowpass'; mlp.frequency.value=7000; mlp.Q.value=0.5;
+      // лёгкая компрессия для «склейки» слоёв
+      const comp = ctx.createDynamicsCompressor();
+      comp.threshold.value=-18; comp.ratio.value=2.4; comp.attack.value=0.02; comp.release.value=0.3;
+      // общая реверберация даёт объём и убирает «плоскость»
+      const verb = ctx.createConvolver(); verb.buffer = impulse(2.6, 2.8);
+      const verbGain = ctx.createGain(); verbGain.gain.value=0.20;
+      master.connect(mlp); mlp.connect(comp); comp.connect(ctx.destination);
+      master.connect(verb); verb.connect(verbGain); verbGain.connect(comp);
     }
     if(ctx.state === 'suspended') ctx.resume();
     return ctx;
@@ -67,8 +82,8 @@ const Engine = (() => {
 
   // ── рецепты звуков ──
   const R = {
-    rain(o){ const s=src('brown'), f=lp(1500), g=gain(0.9); s.connect(f);f.connect(g);g.connect(o); s.start();
-             const t=setInterval(()=>{ _routeGain=o; for(let i=0;i<3;i++) if(Math.random()<0.6) noiseBurst(6000+Math.random()*4000,0.04,0.04); _routeGain=null; },140);
+    rain(o){ const s=src('brown'), f=lp(1400), g=gain(0.95); s.connect(f);f.connect(g);g.connect(o); s.start();
+             const t=setInterval(()=>{ _routeGain=o; for(let i=0;i<3;i++) if(Math.random()<0.55) noiseBurst(4200+Math.random()*3000,0.045,0.028); _routeGain=null; },150);
              return {stop:()=>{s.stop();clearInterval(t);}}; },
     storm(o){ const s=src('brown'), f=lp(1800), g=gain(1.05); s.connect(f);f.connect(g);g.connect(o); s.start();
              const rain=setInterval(()=>{ _routeGain=o; for(let i=0;i<4;i++) if(Math.random()<0.7) noiseBurst(7000,0.03,0.05); _routeGain=null; },110);
@@ -91,7 +106,7 @@ const Engine = (() => {
              const t=setInterval(()=>{ if(Math.random()<0.5){ _routeGain=o; const base=2200+Math.random()*2200; grain(base,0.12,'sine',0.14,bp(base,6)); if(Math.random()<0.5) setTimeout(()=>{_routeGain=o;grain(base*1.1,0.1,'sine',0.1,bp(base,6));_routeGain=null;},110); _routeGain=null; } },700);
              return {stop:()=>{s.stop();clearInterval(t);}}; },
     crickets(o){ const s=src('brown'), f=lp(300), g=gain(0.12); s.connect(f);f.connect(g);g.connect(o); s.start();
-             const t=setInterval(()=>{ _routeGain=o; for(let k=0;k<3;k++) setTimeout(()=>{_routeGain=o;grain(4600,0.03,'square',0.05,bp(4600,12));_routeGain=null;},k*60); _routeGain=null; },420);
+             const t=setInterval(()=>{ for(let k=0;k<3;k++) setTimeout(()=>{_routeGain=o;grain(4400,0.035,'triangle',0.035,bp(4400,9));_routeGain=null;},k*65); },440);
              return {stop:()=>{s.stop();clearInterval(t);}}; },
     cafe(o){ const s=src('brown'), f=lp(900), g=gain(0.42); s.connect(f);f.connect(g);g.connect(o); s.start();
              const t=setInterval(()=>{ if(Math.random()<0.25){ _routeGain=o; grain(3200+Math.random()*2000,0.09,'triangle',0.05,bp(4000,8)); _routeGain=null; } },900);
@@ -103,7 +118,7 @@ const Engine = (() => {
              const t=setInterval(()=>{ _routeGain=o; noiseBurst(3500,0.02,0.09); _routeGain=null; },1000);
              return {stop:()=>{clearInterval(t);}}; },
     keys(o){ const g=gain(1); g.connect(o);
-             let t=null; const tick=()=>{ _routeGain=o; noiseBurst(2600+Math.random()*1800,0.018,0.08); _routeGain=null; t=setTimeout(tick,80+Math.random()*260); }; tick();
+             let t=null; const tick=()=>{ _routeGain=o; noiseBurst(2200+Math.random()*1400,0.02,0.055); _routeGain=null; t=setTimeout(tick,90+Math.random()*300); }; tick();
              return {stop:()=>{clearTimeout(t);}}; },
     brown(o){ const s=src('brown'), g=gain(0.7); s.connect(g);g.connect(o); s.start(); return {stop:()=>s.stop()}; },
     pink(o){ const s=src('pink'), g=gain(0.85); s.connect(g);g.connect(o); s.start(); return {stop:()=>s.stop()}; },
