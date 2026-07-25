@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ТИШЕ — звуки для сна, фокуса и ASMR</title>
-<meta name="description" content="14 настоящих ambient-звуков, которые смешиваются в один. Дождь под треск костра, океан со сверчками. Работает прямо в браузере.">
+<meta name="description" content="27 настоящих ambient-звуков, которые смешиваются в один. Дождь под треск костра, океан со сверчками. Работает прямо в браузере.">
 <meta name="theme-color" content="#0A0913">
 <link rel="stylesheet" href="assets/app.css">
 <style>
@@ -34,14 +34,18 @@
   .cc[data-depth="1"]{z-index:2;transform:translateY(-14px) scale(.93) rotate(3deg);opacity:.7}
   .cc[data-depth="2"]{z-index:1;transform:translateY(-26px) scale(.86) rotate(-3deg);opacity:.4}
   .cc[data-depth="0"]:hover{box-shadow:0 52px 100px rgba(0,0,0,.62)}
-  .cc .play-hint{position:absolute;right:20px;top:20px;width:34px;height:34px;border-radius:50%;
+  .cc .art{position:absolute;inset:0;opacity:.30;pointer-events:none;overflow:hidden;border-radius:27px}
+  .cc .art svg{width:100%;height:100%;display:block}
+  .cc[aria-pressed="true"] .art{opacity:.5}
+  .cc[aria-pressed="true"]{outline-color:var(--ac,var(--lav))}
+  .cc .em,.cc .bars,.cc>div{position:relative;z-index:2}
+  .cc .play-hint{position:absolute;right:20px;top:20px;z-index:3;width:34px;height:34px;border-radius:50%;
                  background:rgba(255,255,255,.14);display:grid;place-items:center;backdrop-filter:blur(6px)}
   .cc .em{font-size:26px}
   .cc b{font-family:"Bahnschrift Light",Bahnschrift,sans-serif;font-weight:400;font-size:clamp(19px,1.6vw,24px);display:block}
   .cc small{color:rgba(255,255,255,.62);font-size:13px}
   .cc .bars{display:flex;align-items:flex-end;gap:3px;height:28px;opacity:.5}
   .cc .bars i{width:4px;background:#fff;border-radius:2px}
-  .cc[aria-pressed="true"]{outline-color:var(--lav)}
   .cc[aria-pressed="true"] .bars{opacity:.95}
   .cc[aria-pressed="true"] .bars i{animation:eqb 1s ease-in-out infinite}
   .cc .bars i:nth-child(2){animation-delay:.15s}.cc .bars i:nth-child(3){animation-delay:.32s}
@@ -124,7 +128,7 @@
 
 <main class="wrap">
   <section class="hero">
-    <div class="kick"><i></i> 14 звуков · соберите свой микс</div>
+    <div class="kick"><i></i> 27 звуков · соберите свой микс</div>
     <h1 class="thin" style="margin-top:16px">Тишина, которую<br>вы <b>настраиваете</b></h1>
     <p>Дождь под треск костра, океан со сверчками. Нажмите карточку — зазвучит настоящая запись, прямо здесь.</p>
     <div class="acts">
@@ -141,18 +145,18 @@
     </div>
     <div class="deck-meta">
       <span class="swipe-hint">← листайте свайпом · тап включает звук →</span>
-      <span class="mono counter" id="counter">1 / 14</span>
+      <span class="mono counter" id="counter">1 / 27</span>
     </div>
 
     <div class="mini" id="mini">
       <button class="pp" id="pp" aria-label="Пауза"><svg id="ppI" width="16" height="16" viewBox="0 0 24 24" fill="#0A0912"><path d="M6 4l14 8-14 8z"/></svg></button>
       <div class="info"><b id="miniTitle">Нажмите карточку</b><span id="miniSub">и звук зазвучит прямо здесь</span></div>
       <div class="chips" id="miniChips"></div>
-      <a href="library.html" class="more">ещё 10 звуков →</a>
+      <a href="library.html" class="more">вся библиотека →</a>
     </div>
 
     <div class="stats">
-      <div><b class="mono">14</b><span>живых звуков</span></div>
+      <div><b class="mono">27</b><span>живых звуков</span></div>
       <div><b class="mono">∞</b><span>сочетаний в миксере</span></div>
       <div><b class="mono">MIT</b><span>звуки свободной лицензии</span></div>
     </div>
@@ -213,9 +217,6 @@
 
   /* ── свайп-колода: листаем все звуки, тап включает ── */
   const SOUNDS=Engine.CATALOG;
-  const GRAD=['linear-gradient(155deg,#2C2450,#191436)','linear-gradient(155deg,#243256,#141C36)',
-              'linear-gradient(155deg,#3B2A52,#211734)','linear-gradient(155deg,#23404A,#13232B)',
-              'linear-gradient(155deg,#2A3B52,#141E2E)','linear-gradient(155deg,#402C46,#22162A)'];
   const stage=document.getElementById('stage'),counter=document.getElementById('counter');
   let idx=0;
 
@@ -225,14 +226,16 @@
       const s=SOUNDS[(idx+d)%SOUNDS.length];
       const el=document.createElement('button');
       el.className='cc'; el.dataset.depth=d; el.dataset.sound=s.id;
-      el.style.background=GRAD[(idx+d)%GRAD.length];
+      el.style.background=s.grad;
       el.setAttribute('aria-pressed', Engine.isOn(s.id));
-      el.innerHTML=`<span class="em">${s.emoji}</span>
+      el.innerHTML=`<span class="art">${s.art}</span>
+        <span class="em">${s.emoji}</span>
         <span class="play-hint">${Engine.isOn(s.id)
           ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>'
           : '<svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M6 4l14 8-14 8z"/></svg>'}</span>
-        <div class="bars">${[40,70,50,88,60].map(h=>`<i style="height:${h}%"></i>`).join('')}</div>
+        <div class="bars">${[40,70,50,88,60].map(h=>`<i style="height:${h}%;background:${s.accent}"></i>`).join('')}</div>
         <div><b>${s.name}</b><small>${s.cat}</small></div>`;
+      el.style.setProperty('--ac',s.accent);
       stage.appendChild(el);
     }
     counter.textContent=(idx+1)+' / '+SOUNDS.length;
