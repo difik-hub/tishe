@@ -9,14 +9,33 @@
 <link rel="stylesheet" href="assets/app.css">
 <style>
   /* герой — ночная сцена с каскадом карточек */
-  .hero{text-align:center;padding:clamp(44px,6vw,78px) 0 0}
-  .hero>p{color:var(--dim);font-size:clamp(1.05rem,1.5vw,1.22rem);max-width:47ch;margin:22px auto 30px}
+  .hero{text-align:center;padding:clamp(30px,4vw,52px) 0 0}
+  .hero>p{color:var(--dim);font-size:clamp(1.05rem,1.5vw,1.22rem);max-width:47ch;margin:18px auto 24px}
   .acts{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
-  .cascade{position:relative;height:clamp(300px,32vw,340px);margin-top:clamp(34px,5vw,54px)}
-  .cc{position:absolute;top:0;left:50%;width:clamp(230px,21vw,290px);aspect-ratio:1;border-radius:28px;
+  /* свайп-колода */
+  .deck{position:relative;display:flex;align-items:center;justify-content:center;gap:clamp(8px,2vw,26px);
+        margin-top:clamp(22px,3vw,34px);touch-action:pan-y}
+  .deck-stage{position:relative;width:clamp(240px,23vw,286px);height:clamp(240px,23vw,286px);flex:none}
+  .arw{width:46px;height:46px;border-radius:50%;border:1px solid var(--hair);color:var(--dim);
+       display:grid;place-items:center;flex:none;background:rgba(255,255,255,.04);
+       transition:color .3s,border-color .3s,transform .3s var(--e)}
+  .arw:hover{color:var(--ink);border-color:var(--lav);transform:scale(1.08)}
+  .deck-meta{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:20px;flex-wrap:wrap}
+  .swipe-hint{color:var(--dim);font-size:13px}
+  .counter{color:var(--lav);font-size:13px;border:1px solid var(--hair);border-radius:999px;padding:5px 12px}
+
+  .cc{position:absolute;inset:0;width:100%;aspect-ratio:1;border-radius:28px;
       border:1px solid var(--hair);padding:22px;display:flex;flex-direction:column;justify-content:space-between;
       text-align:left;color:#EFEDF8;box-shadow:0 40px 80px rgba(0,0,0,.5);outline:2px solid transparent;outline-offset:-2px;
-      transition:transform .55s var(--e),box-shadow .4s,outline-color .3s}
+      cursor:grab;user-select:none;
+      transition:transform .55s var(--e),box-shadow .4s,outline-color .3s,opacity .4s}
+  .cc.drag{transition:none;cursor:grabbing}
+  .cc[data-depth="0"]{z-index:3}
+  .cc[data-depth="1"]{z-index:2;transform:translateY(-14px) scale(.93) rotate(3deg);opacity:.7}
+  .cc[data-depth="2"]{z-index:1;transform:translateY(-26px) scale(.86) rotate(-3deg);opacity:.4}
+  .cc[data-depth="0"]:hover{box-shadow:0 52px 100px rgba(0,0,0,.62)}
+  .cc .play-hint{position:absolute;right:20px;top:20px;width:34px;height:34px;border-radius:50%;
+                 background:rgba(255,255,255,.14);display:grid;place-items:center;backdrop-filter:blur(6px)}
   .cc .em{font-size:26px}
   .cc b{font-family:"Bahnschrift Light",Bahnschrift,sans-serif;font-weight:400;font-size:clamp(19px,1.6vw,24px);display:block}
   .cc small{color:rgba(255,255,255,.62);font-size:13px}
@@ -28,14 +47,8 @@
   .cc .bars i:nth-child(2){animation-delay:.15s}.cc .bars i:nth-child(3){animation-delay:.32s}
   .cc .bars i:nth-child(4){animation-delay:.1s}.cc .bars i:nth-child(5){animation-delay:.24s}
   @keyframes eqb{0%,100%{height:5px}50%{height:26px}}
-  .k1{--x:-30vw;--r:-8deg;background:linear-gradient(155deg,#2C2450,#191436)}
-  .k2{--x:-10vw;--r:-2deg;background:linear-gradient(155deg,#243256,#141C36)}
-  .k3{--x:10vw;--r:4deg;background:linear-gradient(155deg,#3B2A52,#211734)}
-  .k4{--x:30vw;--r:10deg;background:linear-gradient(155deg,#23404A,#13232B)}
-  .cc{transform:translateX(var(--x)) rotate(var(--r))}
-  .cc:hover{transform:translateX(var(--x)) rotate(0deg) translateY(-10px);box-shadow:0 52px 100px rgba(0,0,0,.6)}
-  /* мини-плеер под каскадом */
-  .mini{position:relative;z-index:5;margin:clamp(-22px,-2vw,-28px) auto 0;max-width:720px;
+  /* мини-плеер под колодой */
+  .mini{position:relative;z-index:5;margin:clamp(22px,3vw,30px) auto 0;max-width:720px;
         display:flex;align-items:center;gap:16px;background:rgba(20,16,34,.62);border:1px solid var(--hair);
         border-radius:22px;padding:14px 18px;backdrop-filter:blur(22px)}
   .mini .pp{width:48px;height:48px;border-radius:50%;background:var(--ink);display:grid;place-items:center;flex:none;transition:transform .3s var(--e)}
@@ -45,13 +58,13 @@
   .mini .info span{color:var(--dim);font-size:13px}
   .mini .chips{display:flex;gap:5px}.mini .chips span{font-size:20px;filter:grayscale(.3)}
   .mini a.more{color:var(--lav);font-size:13px;white-space:nowrap}
-  .stats{display:flex;gap:40px;justify-content:center;margin-top:clamp(42px,5vw,62px);padding-top:26px;border-top:1px solid var(--hair)}
+  .stats{display:flex;gap:40px;justify-content:center;margin-top:clamp(30px,4vw,44px);padding-top:24px;border-top:1px solid var(--hair)}
   .stats b{font-family:"Bahnschrift Light",Bahnschrift,sans-serif;font-weight:400;font-size:clamp(1.7rem,2.6vw,2.3rem);display:block}
   .stats span{color:var(--dim);font-size:13px}
   @media(max-width:820px){
-    .cascade{height:auto;display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:30px}
-    .cc{position:static;width:auto;transform:none!important;aspect-ratio:1.15}
-    .cc:hover{transform:translateY(-6px)!important}
+    .arw{display:none}
+    .deck{margin-top:30px}
+    .deck-stage{width:min(78vw,300px);height:min(78vw,300px)}
     .mini{margin-top:22px;flex-wrap:wrap}
     .stats{flex-wrap:wrap;gap:26px}
   }
@@ -119,19 +132,16 @@
       <a href="focus.html" class="btn ghost">Дыхание и фокус</a>
     </div>
 
-    <div class="cascade">
-      <button class="cc k1" data-sound="waves" aria-pressed="false"><span class="em">🌊</span>
-        <div class="bars"><i style="height:40%"></i><i style="height:70%"></i><i style="height:50%"></i><i style="height:88%"></i><i style="height:60%"></i></div>
-        <div><b>Океан</b><small>Волны с приливом</small></div></button>
-      <button class="cc k2" data-sound="rain" aria-pressed="false"><span class="em">🌧️</span>
-        <div class="bars"><i style="height:34%"></i><i style="height:58%"></i><i style="height:42%"></i><i style="height:72%"></i><i style="height:50%"></i></div>
-        <div><b>Дождь</b><small>Шум по крыше</small></div></button>
-      <button class="cc k3" data-sound="campfire" aria-pressed="false"><span class="em">🔥</span>
-        <div class="bars"><i style="height:52%"></i><i style="height:80%"></i><i style="height:44%"></i><i style="height:66%"></i><i style="height:58%"></i></div>
-        <div><b>Костёр</b><small>Тёплый треск</small></div></button>
-      <button class="cc k4" data-sound="birds" aria-pressed="false"><span class="em">🌲</span>
-        <div class="bars"><i style="height:36%"></i><i style="height:62%"></i><i style="height:48%"></i><i style="height:78%"></i><i style="height:54%"></i></div>
-        <div><b>Лес</b><small>Птицы и ветер</small></div></button>
+    <div class="deck" id="deck">
+      <button class="arw l" id="arwL" aria-label="Предыдущий звук">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="deck-stage" id="stage"></div>
+      <button class="arw r" id="arwR" aria-label="Следующий звук">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="deck-meta">
+      <span class="swipe-hint">← листайте свайпом · тап включает звук →</span>
+      <span class="mono counter" id="counter">1 / 14</span>
     </div>
 
     <div class="mini" id="mini">
@@ -201,16 +211,99 @@
   function setPP(p){ppI.innerHTML=p?'<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>':'<path d="M6 4l14 8-14 8z"/>';}
   function plural(n){return n+(n%10===1&&n%100!==11?' слой':([2,3,4].includes(n%10)&&![12,13,14].includes(n%100)?' слоя':' слоёв'));}
 
+  /* ── свайп-колода: листаем все звуки, тап включает ── */
+  const SOUNDS=Engine.CATALOG;
+  const GRAD=['linear-gradient(155deg,#2C2450,#191436)','linear-gradient(155deg,#243256,#141C36)',
+              'linear-gradient(155deg,#3B2A52,#211734)','linear-gradient(155deg,#23404A,#13232B)',
+              'linear-gradient(155deg,#2A3B52,#141E2E)','linear-gradient(155deg,#402C46,#22162A)'];
+  const stage=document.getElementById('stage'),counter=document.getElementById('counter');
+  let idx=0;
+
+  function build(){
+    stage.innerHTML='';
+    for(let d=2;d>=0;d--){                       // сзади вперёд, чтобы порядок в DOM был верный
+      const s=SOUNDS[(idx+d)%SOUNDS.length];
+      const el=document.createElement('button');
+      el.className='cc'; el.dataset.depth=d; el.dataset.sound=s.id;
+      el.style.background=GRAD[(idx+d)%GRAD.length];
+      el.setAttribute('aria-pressed', Engine.isOn(s.id));
+      el.innerHTML=`<span class="em">${s.emoji}</span>
+        <span class="play-hint">${Engine.isOn(s.id)
+          ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>'
+          : '<svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M6 4l14 8-14 8z"/></svg>'}</span>
+        <div class="bars">${[40,70,50,88,60].map(h=>`<i style="height:${h}%"></i>`).join('')}</div>
+        <div><b>${s.name}</b><small>${s.cat}</small></div>`;
+      stage.appendChild(el);
+    }
+    counter.textContent=(idx+1)+' / '+SOUNDS.length;
+    bindFront();
+  }
+  function go(dir){ idx=(idx+dir+SOUNDS.length)%SOUNDS.length; build(); }
+
+  function bindFront(){
+    const front=stage.querySelector('.cc[data-depth="0"]');
+    if(!front) return;
+    let x0=0,y0=0,dx=0,dy=0,dragging=false,moved=false;
+
+    front.addEventListener('pointerdown',e=>{
+      dragging=true; moved=false; x0=e.clientX; y0=e.clientY;
+      front.classList.add('drag'); front.setPointerCapture(e.pointerId);
+    });
+    front.addEventListener('pointermove',e=>{
+      if(!dragging) return;
+      dx=e.clientX-x0; dy=e.clientY-y0;
+      if(Math.abs(dx)>6) moved=true;
+      if(Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>30) return;   // вертикальный скролл не мешаем
+      front.style.transform=`translateX(${dx}px) rotate(${dx*0.045}deg)`;
+      front.style.opacity=String(Math.max(.35,1-Math.abs(dx)/380));
+    });
+    function end(){
+      if(!dragging) return; dragging=false;
+      front.classList.remove('drag');
+      const th=90;
+      if(Math.abs(dx)>th){
+        const out=dx>0?1:-1;
+        front.style.transition='transform .35s ease-out, opacity .35s';
+        front.style.transform=`translateX(${out*460}px) rotate(${out*16}deg)`;
+        front.style.opacity='0';
+        setTimeout(()=>go(out>0?-1:1),240);
+      } else {
+        front.style.transform=''; front.style.opacity='';
+      }
+      dx=0; dy=0;
+    }
+    front.addEventListener('pointerup',end);
+    front.addEventListener('pointercancel',end);
+    // тап или Enter — включаем звук; после свайпа клик не считаем
+    front.addEventListener('click',()=>{ if(!moved) Engine.toggle(front.dataset.sound); moved=false; });
+  }
+
+  document.getElementById('arwL').addEventListener('click',()=>go(-1));
+  document.getElementById('arwR').addEventListener('click',()=>go(1));
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowLeft')go(-1); else if(e.key==='ArrowRight')go(1);
+  });
+
   Engine.onChange(ids=>{
-    document.querySelectorAll('.cc[data-sound]').forEach(c=>c.setAttribute('aria-pressed', ids.includes(c.dataset.sound)));
+    stage.querySelectorAll('.cc').forEach(c=>{
+      const on=ids.includes(c.dataset.sound);
+      c.setAttribute('aria-pressed',on);
+      const h=c.querySelector('.play-hint');
+      if(h) h.innerHTML = on
+        ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>'
+        : '<svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M6 4l14 8-14 8z"/></svg>';
+    });
     miniChips.innerHTML=ids.map(id=>`<span>${EMO[id]||'🎵'}</span>`).join('');
     if(ids.length){miniTitle.textContent=plural(ids.length)+' в миксе';miniSub.textContent='звучит прямо здесь';setPP(true);}
-    else{miniTitle.textContent='Нажмите карточку';miniSub.textContent='и звук зазвучит прямо здесь';setPP(false);}
+    else{miniTitle.textContent='Листайте и нажмите карточку';miniSub.textContent='зазвучит настоящая запись';setPP(false);}
   });
-  document.querySelectorAll('.cc[data-sound]').forEach(c=>c.addEventListener('click',()=>Engine.toggle(c.dataset.sound)));
+
   document.getElementById('pp').addEventListener('click',()=>{
-    if(Engine.activeIds().length)Engine.stopAll(0.4); else Engine.toggle('waves');
+    if(Engine.activeIds().length)Engine.stopAll(0.4);
+    else Engine.toggle(SOUNDS[idx].id);
   });
+
+  build();
 </script>
 </body>
 </html>
