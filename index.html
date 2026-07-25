@@ -31,17 +31,18 @@
       transition:transform .55s var(--e),box-shadow .4s,outline-color .3s,opacity .4s}
   .cc.drag{transition:none;cursor:grabbing}
   .cc[data-depth="0"]{z-index:3}
-  .cc[data-depth="1"]{z-index:2;transform:translateY(-14px) scale(.93) rotate(3deg);opacity:.7}
-  .cc[data-depth="2"]{z-index:1;transform:translateY(-26px) scale(.86) rotate(-3deg);opacity:.4}
+  .cc[data-depth="1"]{z-index:2;transform:translateY(-24px) scale(.945) rotate(3.5deg);opacity:.75}
+  .cc[data-depth="2"]{z-index:1;transform:translateY(-44px) scale(.89) rotate(-4deg);opacity:.5}
   .cc[data-depth="0"]:hover{box-shadow:0 52px 100px rgba(0,0,0,.62)}
   .cc .art{position:absolute;inset:0;opacity:.30;pointer-events:none;overflow:hidden;border-radius:27px}
   .cc .art svg{width:100%;height:100%;display:block}
   .cc[aria-pressed="true"] .art{opacity:.5}
   .cc[aria-pressed="true"]{outline-color:var(--ac,var(--lav))}
-  .cc .em,.cc .bars,.cc>div{position:relative;z-index:2}
+  .cc .ic-glyph,.cc .bars,.cc>div{position:relative;z-index:2}
   .cc .play-hint{position:absolute;right:20px;top:20px;z-index:3;width:34px;height:34px;border-radius:50%;
                  background:rgba(255,255,255,.14);display:grid;place-items:center;backdrop-filter:blur(6px)}
-  .cc .em{font-size:26px}
+  .cc .ic-glyph{width:30px;height:30px;display:block}
+  .cc .ic-glyph svg{width:100%;height:100%}
   .cc b{font-family:"Bahnschrift Light",Bahnschrift,sans-serif;font-weight:400;font-size:clamp(19px,1.6vw,24px);display:block}
   .cc small{color:rgba(255,255,255,.62);font-size:13px}
   .cc .bars{display:flex;align-items:flex-end;gap:3px;height:28px;opacity:.5}
@@ -111,7 +112,7 @@
 </style>
 </head>
 <body>
-<div class="aura"></div><div class="grain"></div>
+<div class="aura"></div><div class="moonlayer"></div><div class="grain"></div>
 
 <header class="hdr" id="hdr">
   <div class="wrap in">
@@ -119,7 +120,7 @@
     <nav class="nav">
       <a href="library.html">Библиотека</a>
       <a href="focus.html">Фокус и дыхание</a>
-      <a href="#about" class="on">О приложении</a>
+      <a href="#about">О приложении</a>
     </nav>
     <a href="#price" class="cta">7 дней бесплатно</a>
     <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
@@ -229,7 +230,7 @@
       el.style.background=s.grad;
       el.setAttribute('aria-pressed', Engine.isOn(s.id));
       el.innerHTML=`<span class="art">${s.art}</span>
-        <span class="em">${s.emoji}</span>
+        <span class="ic-glyph">${s.icon}</span>
         <span class="play-hint">${Engine.isOn(s.id)
           ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>'
           : '<svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M6 4l14 8-14 8z"/></svg>'}</span>

@@ -21,8 +21,9 @@ svg{display:block}
   radial-gradient(46vw 46vw at 82% -8%,rgba(179,164,224,.22),rgba(126,139,207,.10) 46%,transparent 66%),
   radial-gradient(52vw 52vw at 10% 6%,rgba(126,139,207,.12),transparent 60%),
   linear-gradient(180deg,var(--bg),var(--bg2))}
-/* луна */
-.aura::before{content:"";position:absolute;top:5vh;right:9vw;width:clamp(90px,11vw,170px);aspect-ratio:1;
+/* луна — отдельным слоем на первом экране, чтобы уезжала при скролле, а не висела над контентом */
+.moonlayer{position:absolute;top:0;left:0;right:0;height:100vh;z-index:-1;overflow:hidden;pointer-events:none}
+.moonlayer::before{content:"";position:absolute;top:6vh;right:7vw;width:clamp(90px,11vw,170px);aspect-ratio:1;
   border-radius:50%;background:radial-gradient(circle at 38% 36%,#E4DDF3,#B3A7D2 56%,#6E6796);
   box-shadow:0 0 120px 20px rgba(179,164,224,.28)}
 /* звёзды — статичный слой из точек, без JS */

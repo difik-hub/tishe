@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Библиотека звуков — ТИШЕ</title>
-<meta name="description" content="15 звуков для сна, фокуса и ASMR. Смешивайте несколько слоёв, у каждого своя громкость. Всё звучит прямо в браузере.">
+<meta name="description" content="27 звуков для сна, фокуса и ASMR. Смешивайте несколько слоёв, у каждого своя громкость. Всё звучит прямо в браузере.">
 <meta name="theme-color" content="#0A0913">
 <link rel="stylesheet" href="assets/app.css">
 <style>
@@ -37,20 +37,28 @@
        display:flex;flex-direction:column;gap:14px;min-height:172px;overflow:hidden}
   .snd:hover{transform:translateY(-4px);background:var(--panel2)}
   .snd.on{border-color:var(--lav);background:linear-gradient(160deg,rgba(126,139,207,.18),rgba(16,13,30,.4))}
-  .snd .em{font-size:34px;line-height:1;filter:saturate(.9)}
+  .snd .bg{position:absolute;inset:0;opacity:.07;pointer-events:none;transition:opacity .5s}
+  .snd .bg svg{width:100%;height:100%;display:block}
+  .snd.on .bg{opacity:.2}
+  .snd:hover .bg{opacity:.13}
+  .snd.on:hover .bg{opacity:.24}
+  .snd>*{position:relative;z-index:2}
+  .snd .g{width:34px;height:34px}
+  .snd .g svg{width:100%;height:100%}
+  .snd.on{border-color:var(--sc,var(--lav))}
   .snd .nm{font-family:"Bahnschrift Light",Bahnschrift,sans-serif;font-weight:400;font-size:19px}
   .snd .ct{font-size:12px;color:var(--dim);letter-spacing:.06em}
   .snd .eq{position:absolute;right:18px;top:22px;display:none;align-items:flex-end;gap:2px;height:20px}
   .snd.on .eq{display:flex}
-  .snd .eq i{width:3px;background:var(--lav);border-radius:2px;animation:eq 1s ease-in-out infinite}
+  .snd .eq i{width:3px;background:var(--sc,var(--lav));border-radius:2px;animation:eq 1s ease-in-out infinite}
   .snd .eq i:nth-child(2){animation-delay:.15s}.snd .eq i:nth-child(3){animation-delay:.3s}.snd .eq i:nth-child(4){animation-delay:.45s}
   @keyframes eq{0%,100%{height:6px}50%{height:20px}}
   .snd .vol{margin-top:auto;display:none}
   .snd.on .vol{display:block}
-  .snd .vol input{width:100%;accent-color:var(--lav)}
+  .snd .vol input{width:100%;accent-color:var(--sc,var(--lav))}
   .snd .foot{display:flex;align-items:center;justify-content:space-between;margin-top:auto}
   .snd .state{font-size:12px;color:var(--dim)}
-  .snd.on .state{color:var(--lav)}
+  .snd.on .state{color:var(--sc,var(--lav))}
 
   /* пресеты-миксы */
   .mixes{margin-top:56px}
@@ -62,13 +70,15 @@
   .preset:hover{transform:translateY(-3px);border-color:var(--lav)}
   .preset b{font-size:18px;display:block;margin-bottom:4px}
   .preset span{color:var(--dim);font-size:13.5px}
-  .preset .em{font-size:13px;margin-top:10px;color:var(--lav)}
+  .preset .ics{display:flex;gap:7px;margin-top:12px}
+  .preset .ics span{width:20px;height:20px}
+  .preset .ics svg{width:100%;height:100%}
 
   @media(max-width:560px){.grid{grid-template-columns:1fr 1fr}.mv{margin-left:0;width:100%}.mv input{flex:1}}
 </style>
 </head>
 <body>
-<div class="aura"></div><div class="grain"></div>
+<div class="aura"></div><div class="moonlayer"></div><div class="grain"></div>
 
 <header class="hdr" id="hdr">
   <div class="wrap in">
@@ -85,13 +95,13 @@
 
 <main class="wrap">
   <section class="lead">
-    <div class="kick"><i></i> Библиотека · 15 звуков</div>
+    <div class="kick"><i></i> Библиотека · 27 звуков</div>
     <h1 class="thin" style="margin-top:16px">Соберите свой<br><b>звук ночи</b></h1>
-    <p>Включайте несколько слоёв сразу — дождь под треск костра, ветер со сверчками. У каждого звука своя громкость. Ничего не скачивается: всё синтезируется прямо в браузере.</p>
+    <p>Включайте несколько слоёв сразу — дождь под треск костра, ветер со сверчками. У каждого звука своя громкость. Все звуки — живые записи, не синтез: настоящий дождь, настоящий костёр, настоящая клавиатура.</p>
   </section>
 
   <div class="bar">
-    <div class="cnt">В миксе: <b id="cnt">0</b> из 15</div>
+    <div class="cnt">В миксе: <b id="cnt">0</b> из 27</div>
     <button class="stop" id="stop" disabled>■ Остановить всё</button>
     <div class="mv"><span>Общая громкость</span><input type="range" id="mvol" min="0" max="100" value="90" aria-label="Общая громкость"></div>
   </div>
@@ -108,7 +118,7 @@
 
 <footer class="foot"><div class="wrap in">
   <span>© 2026 <b>ТИШЕ</b> · звуки для сна, фокуса и ASMR</span>
-  <span>Демо-продукт студии <b>Stack</b> · звук генерируется в браузере</span>
+  <span>Демо-продукт студии <b>Stack</b> · живые записи, работает офлайн</span>
 </div></footer>
 
 <script src="assets/engine.js"></script>
@@ -129,8 +139,10 @@
     Engine.CATALOG.filter(s=>filter==='Все'||s.cat===filter).forEach(s=>{
       const on=Engine.isOn(s.id);
       const el=document.createElement('div');el.className='snd'+(on?' on':'');el.dataset.id=s.id;
-      el.innerHTML=`<div class="eq"><i></i><i></i><i></i><i></i></div>
-        <div class="em">${s.emoji}</div>
+      el.style.setProperty('--sc',s.accent);
+      el.innerHTML=`<div class="bg">${s.art}</div>
+        <div class="eq"><i></i><i></i><i></i><i></i></div>
+        <div class="g">${s.icon}</div>
         <div><div class="nm">${s.name}</div><div class="ct">${s.cat}</div></div>
         <div class="vol"><input type="range" min="0" max="100" value="60" aria-label="Громкость ${s.name}"></div>
         <div class="foot"><span class="state">${on?'В миксе':'Выключен'}</span></div>`;
@@ -147,16 +159,17 @@
 
   // пресеты
   const PRESETS=[
-    {name:'Сон под дождём', desc:'Дождь + костёр + ветер', ids:['rain','campfire','wind'], em:'🌧️ 🔥 🌬️'},
-    {name:'Глубокий фокус', desc:'Коричневый шум + клавиатура', ids:['brown','keyboard'], em:'🟤 ⌨️'},
-    {name:'Лесное утро', desc:'Птицы + ручей + ветер', ids:['birds','river','wind'], em:'🐦 🏞️ 🌬️'},
-    {name:'Летняя ночь', desc:'Сверчки + ветер', ids:['crickets','wind'], em:'🦗 🌬️'},
-    {name:'Уютное кафе', desc:'Кофейня + дождь', ids:['cafe','rain'], em:'☕ 🌧️'},
-    {name:'Шторм', desc:'Гром + ливень + океан', ids:['thunder','heavy-rain','waves'], em:'🌩️ ⛈️ 🌊'},
+    {name:'Сон под дождём', desc:'Дождь + костёр + ветер', ids:['rain','campfire','wind']},
+    {name:'Глубокий фокус', desc:'Коричневый шум + клавиатура', ids:['brown','keyboard']},
+    {name:'Лесное утро', desc:'Птицы + ручей + ветер', ids:['birds','river','wind']},
+    {name:'Летняя ночь', desc:'Сверчки + ветер', ids:['crickets','wind']},
+    {name:'Уютное кафе', desc:'Кофейня + дождь', ids:['cafe','rain']},
+    {name:'Шторм', desc:'Гром + ливень + океан', ids:['thunder','heavy-rain','waves']},
   ];
   const pr=document.getElementById('presets');
   PRESETS.forEach(p=>{const b=document.createElement('button');b.className='preset';
-    b.innerHTML=`<b>${p.name}</b><span>${p.desc}</span><div class="em">${p.em}</div>`;
+    b.innerHTML=`<b>${p.name}</b><span>${p.desc}</span><div class="ics">${
+      p.ids.map(id=>{const s=Engine.get(id);return s?`<span>${s.icon}</span>`:'';}).join('')}</div>`;
     b.onclick=()=>{Engine.stopAll(0.2);setTimeout(()=>{p.ids.forEach(id=>Engine.toggle(id));render();},260);};
     pr.appendChild(b);});
 </script>
