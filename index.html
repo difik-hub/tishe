@@ -81,7 +81,8 @@
   .rc{flex:0 0 auto;display:flex;align-items:center;gap:11px;border:1px solid var(--hair);
       border-radius:16px;padding:14px 20px;background:var(--panel);transition:all .35s var(--e)}
   .rc:hover{transform:translateY(-3px);border-color:var(--lav)}
-  .rc .em{font-size:24px}
+  .chips .mi{display:inline-flex;width:18px;height:18px}.chips .mi svg{width:100%;height:100%}
+  .rc .gi{width:24px;height:24px;flex:none}.rc .gi svg{width:100%;height:100%}
   .rc b{font-size:15px}.rc span{color:var(--dim);font-size:12px;display:block}
 
   /* фичи — разного размера, не три близнеца */
@@ -163,13 +164,7 @@
     </div>
   </section>
 
-  <div class="rail">
-    <a href="library.html" class="rc"><span class="em">🌧️</span><span><b>Природа</b><span>дождь · океан · ручей · ветер</span></span></a>
-    <a href="library.html" class="rc"><span class="em">🔥</span><span><b>Уют</b><span>костёр · кофейня</span></span></a>
-    <a href="library.html" class="rc"><span class="em">🐦</span><span><b>Лес</b><span>птицы · водопад</span></span></a>
-    <a href="library.html" class="rc"><span class="em">🦉</span><span><b>Ночь</b><span>сверчки · сова · деревня</span></span></a>
-    <a href="library.html" class="rc"><span class="em">📚</span><span><b>Места</b><span>библиотека · кофейня</span></span></a>
-  </div>
+  <div class="rail" id="catRail"></div>
 
   <section class="feat" id="about">
     <div class="card big">
@@ -208,9 +203,19 @@
 
 <script src="assets/engine.js"></script>
 <script>
+  (()=>{ // лента категорий из каталога: имена и иконки настоящие
+    const wanted=['Непогода','Вода','Уют','Ночь','ASMR','Шум'];
+    document.getElementById('catRail').innerHTML=wanted.map(cat=>{
+      const inCat=Engine.CATALOG.filter(s=>s.cat===cat);
+      if(!inCat.length) return '';
+      const names=inCat.slice(0,3).map(s=>s.name.toLowerCase()).join(', ');
+      return '<a href="library.html" class="rc"><span class="gi">'+inCat[0].icon+'</span>'+
+             '<span><b>'+cat+'</b><span>'+names+'</span></span></a>';
+    }).join('');
+  })();
   document.getElementById('burger').addEventListener('click',()=>document.getElementById('hdr').classList.toggle('open'));
 
-  const EMO=Object.fromEntries(Engine.CATALOG.map(x=>[x.id,x.emoji]));
+  const MINI_ICON=Object.fromEntries(Engine.CATALOG.map(x=>[x.id,x.icon]));
   const miniTitle=document.getElementById('miniTitle'),miniSub=document.getElementById('miniSub'),
         miniChips=document.getElementById('miniChips'),ppI=document.getElementById('ppI');
   function setPP(p){ppI.innerHTML=p?'<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>':'<path d="M6 4l14 8-14 8z"/>';}
@@ -297,7 +302,7 @@
         ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>'
         : '<svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M6 4l14 8-14 8z"/></svg>';
     });
-    miniChips.innerHTML=ids.map(id=>`<span>${EMO[id]||'🎵'}</span>`).join('');
+    miniChips.innerHTML=ids.map(id=>'<span class="mi">'+(MINI_ICON[id]||'')+'</span>').join('');
     if(ids.length){miniTitle.textContent=plural(ids.length)+' в миксе';miniSub.textContent='звучит прямо здесь';setPP(true);}
     else{miniTitle.textContent='Листайте и нажмите карточку';miniSub.textContent='зазвучит настоящая запись';setPP(false);}
   });
