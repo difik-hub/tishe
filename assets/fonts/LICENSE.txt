@@ -1,0 +1,7 @@
+Шрифты в этой папке распространяются по SIL Open Font License 1.1.
+
+Unbounded — Nikita Sapozhkov / Kirill Chibisov, https://github.com/google/fonts/tree/main/ofl/unbounded
+Manrope   — Mikhail Sharanda, https://github.com/google/fonts/tree/main/ofl/manrope
+
+Файлы урезаны до латиницы и кириллицы и упакованы в woff2 (fontTools).
+Полный текст лицензии: https://openfontlicense.org/
